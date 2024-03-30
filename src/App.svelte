@@ -66,7 +66,7 @@
     };
     reader.readAsDataURL(file);
 
-    input.value = ""
+    input.value = "";
   }
 
   function drawImages() {
@@ -118,10 +118,22 @@
     drawImages(); // Redraw to reflect changes
   }
 
-  function doDrag(event: MouseEvent) {
-    if (!isDragging || !draggedImage) return;
+  function onCanvasMouseMove(event: MouseEvent) {
+    // Check if the mouse is over any of the images
     const mouseX = event.clientX - canvas.offsetLeft;
     const mouseY = event.clientY - canvas.offsetTop;
+
+    const isOverImage = images.some((image) => {
+      return (
+        mouseX > image.x &&
+        mouseX < image.x + image.img.width &&
+        mouseY > image.y &&
+        mouseY < image.y + image.img.height
+      );
+    });
+
+    canvas.style.cursor = isOverImage ? "pointer" : "default";
+    if (!isDragging || !draggedImage) return;
     draggedImage.x = mouseX - offsetX;
     draggedImage.y = mouseY - offsetY;
     drawImages();
@@ -144,7 +156,7 @@
       bind:this={canvas}
       style="width: 100vw; height: 100vh;"
       on:mousedown={startDrag}
-      on:mousemove={doDrag}
+      on:mousemove={onCanvasMouseMove}
       on:mouseup={stopDrag}
       on:mouseout={stopDrag}
       on:blur={stopDrag}
