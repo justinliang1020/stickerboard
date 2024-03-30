@@ -5,6 +5,7 @@
     img: HTMLImageElement;
     x: number;
     y: number;
+    clicked: boolean;
   }
 
   let canvas: HTMLCanvasElement;
@@ -42,7 +43,7 @@
       const img = new Image();
       img.onload = () => {
         if (ctx) {
-          images.push({ img, x: 10, y: 10 }); // Initial position
+          images.push({ img, x: 10, y: 10, clicked: false }); // Initial position
           drawImages();
         }
       };
@@ -54,15 +55,22 @@
   function drawImages() {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    images.forEach(({ img, x, y }) => {
+    images.forEach(({ img, x, y, clicked }) => {
       if (!ctx) return;
       ctx.drawImage(img, x, y);
+      if (clicked) {
+        ctx.strokeStyle = "pink";
+        ctx.lineWidth = 5; // Adjust for desired border thickness
+        ctx.strokeRect(x, y, img.width, img.height);
+      }
     });
   }
 
   function startDrag(event: MouseEvent) {
     const mouseX = event.clientX - canvas.offsetLeft;
     const mouseY = event.clientY - canvas.offsetTop;
+    let imageFound = false; // Flag to check if an image is found under the click
+
     images.forEach((image) => {
       if (
         mouseX > image.x &&
@@ -70,12 +78,27 @@
         mouseY > image.y &&
         mouseY < image.y + image.img.height
       ) {
+        imageFound = true;
+        if (image.clicked === false) {
+          image.clicked = true;
+        }
+
+        // Prepare for dragging
         isDragging = true;
         draggedImage = image;
         offsetX = mouseX - image.x;
         offsetY = mouseY - image.y;
+      } else {
+        // Unclick other images
+        image.clicked = false;
       }
     });
+
+    if (!imageFound) {
+      images.forEach((image) => (image.clicked = false)); // Unclick all if clicked on empty space
+    }
+
+    drawImages(); // Redraw to reflect changes
   }
 
   function doDrag(event: MouseEvent) {
