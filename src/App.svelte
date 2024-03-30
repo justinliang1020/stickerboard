@@ -19,11 +19,13 @@
     ctx = canvas.getContext("2d");
     resizeCanvas(); // Set initial size
     window.addEventListener("resize", resizeCanvas); // Adjust on window resize
+    window.addEventListener("keydown", handleKeyDown);
   });
 
   // Cleanup to prevent memory leaks
   onDestroy(() => {
     window.removeEventListener("resize", resizeCanvas);
+    window.removeEventListener("keydown", handleKeyDown);
   });
 
   function resizeCanvas() {
@@ -31,6 +33,19 @@
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       drawImages(); // Redraw images to fit new dimensions
+    }
+  }
+
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "Backspace" || event.key === "Delete") {
+      const selectedImageIndex = images.findIndex((image) => image.clicked);
+      if (selectedImageIndex !== -1) {
+        // Remove the selected image
+        images.splice(selectedImageIndex, 1);
+        drawImages(); // Redraw the canvas to reflect the removal
+      }
+      // Prevent the default action of backspace to navigate back
+      event.preventDefault();
     }
   }
 
@@ -50,6 +65,8 @@
       img.src = e.target?.result as string;
     };
     reader.readAsDataURL(file);
+
+    input.value = ""
   }
 
   function drawImages() {
