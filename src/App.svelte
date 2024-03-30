@@ -84,16 +84,14 @@
   }
 
   function startDrag(event: MouseEvent) {
-    const mouseX = event.clientX - canvas.offsetLeft;
-    const mouseY = event.clientY - canvas.offsetTop;
+    const mousePos = getMousePos(canvas, event);
     let imageFound = false; // Flag to check if an image is found under the click
-
     images.forEach((image) => {
       if (
-        mouseX > image.x &&
-        mouseX < image.x + image.img.width &&
-        mouseY > image.y &&
-        mouseY < image.y + image.img.height
+        mousePos.x > image.x &&
+        mousePos.x < image.x + image.img.width &&
+        mousePos.y > image.y &&
+        mousePos.y < image.y + image.img.height
       ) {
         imageFound = true;
         if (image.clicked === false) {
@@ -103,8 +101,8 @@
         // Prepare for dragging
         isDragging = true;
         draggedImage = image;
-        offsetX = mouseX - image.x;
-        offsetY = mouseY - image.y;
+        offsetX = mousePos.x - image.x;
+        offsetY = mousePos.y - image.y;
       } else {
         // Unclick other images
         image.clicked = false;
@@ -118,24 +116,31 @@
     drawImages(); // Redraw to reflect changes
   }
 
+  function getMousePos(canvas: HTMLCanvasElement, evt: MouseEvent) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top,
+    };
+  }
+
   function onCanvasMouseMove(event: MouseEvent) {
     // Check if the mouse is over any of the images
-    const mouseX = event.clientX - canvas.offsetLeft;
-    const mouseY = event.clientY - canvas.offsetTop;
+    const mousePos = getMousePos(canvas, event);
 
     const isOverImage = images.some((image) => {
       return (
-        mouseX > image.x &&
-        mouseX < image.x + image.img.width &&
-        mouseY > image.y &&
-        mouseY < image.y + image.img.height
+        mousePos.x > image.x &&
+        mousePos.x < image.x + image.img.width &&
+        mousePos.y > image.y &&
+        mousePos.y < image.y + image.img.height
       );
     });
 
     canvas.style.cursor = isOverImage ? "pointer" : "default";
     if (!isDragging || !draggedImage) return;
-    draggedImage.x = mouseX - offsetX;
-    draggedImage.y = mouseY - offsetY;
+    draggedImage.x = mousePos.x - offsetX;
+    draggedImage.y = mousePos.y - offsetY;
     drawImages();
   }
 
