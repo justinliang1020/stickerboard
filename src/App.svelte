@@ -16,7 +16,10 @@
     y: number;
     size: number;
     cursor: string;
+    corner: Corner;
   }
+
+  type Corner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
   const cornerHandleSize = 10;
 
@@ -99,25 +102,29 @@
         y: image.y - size / 2,
         size,
         cursor: "nwse-resize",
-      }, // Top-left
+        corner: "top-left",
+      }, 
       {
         x: image.x + image.width - size / 2,
         y: image.y - size / 2,
         size,
         cursor: "nesw-resize",
-      }, // Top-right
+        corner: "top-right"
+      }, 
       {
         x: image.x - size / 2,
         y: image.y + image.height - size / 2,
         size,
         cursor: "nesw-resize",
-      }, // Bottom-left
+        corner: "bottom-left"
+      }, 
       {
         x: image.x + image.width - size / 2,
         y: image.y + image.height - size / 2,
         size,
         cursor: "nwse-resize",
-      }, // Bottom-right
+        corner: "bottom-right"
+      }, 
     ];
   }
 
