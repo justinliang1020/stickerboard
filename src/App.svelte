@@ -27,7 +27,7 @@
   let ctx: CanvasRenderingContext2D | null;
   let images: ImageInfo[] = [];
   let isDragging: boolean = false;
-  let draggedImage: ImageInfo | null = null;
+  let selectedImage: ImageInfo | null = null;
   let offsetX: number, offsetY: number;
   let isResizing: boolean = false;
   let activeHandle: HandleInfo | null = null;
@@ -184,7 +184,7 @@
           interactionFound = true;
           isResizing = true;
           activeHandle = handle;
-          draggedImage = image;
+          selectedImage = image;
           image.clicked = true; // Ensure the image remains clicked
           return;
         }
@@ -196,7 +196,7 @@
           interactionFound = true;
           image.clicked = true;
           isDragging = true;
-          draggedImage = image;
+          selectedImage = image;
           offsetX = mousePos.x - image.x;
           offsetY = mousePos.y - image.y;
         } else if (!isResizing) {
@@ -246,33 +246,33 @@
       }
     });
 
-    if (isResizing && activeHandle && draggedImage) {
-      const originalWidth = draggedImage.width;
-      const originalHeight = draggedImage.height;
+    if (isResizing && activeHandle && selectedImage) {
+      const originalWidth = selectedImage.width;
+      const originalHeight = selectedImage.height;
       const aspectRatio = originalWidth / originalHeight;
 
       let newWidth, newHeight;
 
       // Calculate the distance moved in both x and y directions
-      let dx = mousePos.x - draggedImage.x;
-      let dy = mousePos.y - draggedImage.y;
+      let dx = mousePos.x - selectedImage.x;
+      let dy = mousePos.y - selectedImage.y;
 
       switch (activeHandle.corner) {
         case "top-left":
           newWidth = originalWidth - dx;
           newHeight = newWidth / aspectRatio;
-          draggedImage.x = mousePos.x;
-          draggedImage.y = draggedImage.y + originalHeight - newHeight;
+          selectedImage.x = mousePos.x;
+          selectedImage.y = selectedImage.y + originalHeight - newHeight;
           break;
         case "top-right":
           newWidth = dx;
           newHeight = newWidth / aspectRatio;
-          draggedImage.y = draggedImage.y + originalHeight - newHeight;
+          selectedImage.y = selectedImage.y + originalHeight - newHeight;
           break;
         case "bottom-left":
           newWidth = originalWidth - dx;
           newHeight = newWidth / aspectRatio;
-          draggedImage.x = mousePos.x;
+          selectedImage.x = mousePos.x;
           break;
         case "bottom-right":
           newWidth = dx;
@@ -282,15 +282,15 @@
 
       // Apply the new dimensions while preserving aspect ratio
       if (newWidth > 0 && newHeight > 0) {
-        draggedImage.width = newWidth;
-        draggedImage.height = newHeight;
-        updateHandlePositions(draggedImage);
+        selectedImage.width = newWidth;
+        selectedImage.height = newHeight;
+        updateHandlePositions(selectedImage);
         drawImages();
       }
-    } else if (isDragging && draggedImage) {
-      draggedImage.x = mousePos.x - offsetX;
-      draggedImage.y = mousePos.y - offsetY;
-      updateHandlePositions(draggedImage);
+    } else if (isDragging && selectedImage) {
+      selectedImage.x = mousePos.x - offsetX;
+      selectedImage.y = mousePos.y - offsetY;
+      updateHandlePositions(selectedImage);
       drawImages();
     }
   }
@@ -304,7 +304,7 @@
     if (isDragging) {
       // Reset dragging state
       isDragging = false;
-      draggedImage = null;
+      selectedImage = null;
     }
   }
 
