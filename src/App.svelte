@@ -15,10 +15,10 @@
     x: number;
     y: number;
     size: number;
-    cursor: string;
+    cursor: HandleCursor;
     corner: Corner;
   }
-
+  type HandleCursor = "nwse-resize" | "nesw-resize";
   type Corner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
   const cornerHandleSize = 10;
@@ -103,28 +103,28 @@
         size,
         cursor: "nwse-resize",
         corner: "top-left",
-      }, 
+      },
       {
         x: image.x + image.width - size / 2,
         y: image.y - size / 2,
         size,
         cursor: "nesw-resize",
-        corner: "top-right"
-      }, 
+        corner: "top-right",
+      },
       {
         x: image.x - size / 2,
         y: image.y + image.height - size / 2,
         size,
         cursor: "nesw-resize",
-        corner: "bottom-left"
-      }, 
+        corner: "bottom-left",
+      },
       {
         x: image.x + image.width - size / 2,
         y: image.y + image.height - size / 2,
         size,
         cursor: "nwse-resize",
-        corner: "bottom-right"
-      }, 
+        corner: "bottom-right",
+      },
     ];
   }
 
