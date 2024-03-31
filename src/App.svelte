@@ -94,7 +94,7 @@
     });
   }
 
-  function startDrag(event: MouseEvent) {
+  function onCanvasMouseDown(event: MouseEvent) {
     const mousePos = getMousePos(canvas, event);
     let imageFound = false; // Flag to check if an image is found under the click
     images.forEach((image) => {
@@ -171,7 +171,7 @@
     <canvas
       bind:this={canvas}
       style="width: 100vw; height: 100vh;"
-      on:mousedown={startDrag}
+      on:mousedown={onCanvasMouseDown}
       on:mousemove={onCanvasMouseMove}
       on:mouseup={stopDrag}
       on:mouseout={stopDrag}
