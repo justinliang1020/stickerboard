@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from "svelte";
 
   interface ImageInfo {
-    img: HTMLImageElement;
+    img_element: HTMLImageElement;
     x: number;
     y: number;
     clicked: boolean;
@@ -55,14 +55,19 @@
     const file = input.files[0];
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
-      const img = new Image();
-      img.onload = () => {
+      const img_element = new Image();
+      img_element.onload = () => {
         if (ctx) {
-          images.push({ img, x: 10, y: 10, clicked: false }); // Initial position
+          images.push({
+            img_element,
+            x: 10,
+            y: 10,
+            clicked: false,
+          });
           drawImages();
         }
       };
-      img.src = e.target?.result as string;
+      img_element.src = e.target?.result as string;
     };
     reader.readAsDataURL(file);
 
@@ -72,13 +77,19 @@
   function drawImages() {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    images.forEach(({ img, x, y, clicked }) => {
+    images.forEach((image) => {
       if (!ctx) return;
-      ctx.drawImage(img, x, y);
-      if (clicked) {
+      ctx.drawImage(image.img_element, image.x, image.y);
+      if (image.clicked) {
+        // draw border
         ctx.strokeStyle = "pink";
         ctx.lineWidth = 5; // Adjust for desired border thickness
-        ctx.strokeRect(x, y, img.width, img.height);
+        ctx.strokeRect(
+          image.x,
+          image.y,
+          image.img_element.width,
+          image.img_element.height
+        );
       }
     });
   }
@@ -89,9 +100,9 @@
     images.forEach((image) => {
       if (
         mousePos.x > image.x &&
-        mousePos.x < image.x + image.img.width &&
+        mousePos.x < image.x + image.img_element.width &&
         mousePos.y > image.y &&
-        mousePos.y < image.y + image.img.height
+        mousePos.y < image.y + image.img_element.height
       ) {
         imageFound = true;
         if (image.clicked === false) {
@@ -131,9 +142,9 @@
     const isOverImage = images.some((image) => {
       return (
         mousePos.x > image.x &&
-        mousePos.x < image.x + image.img.width &&
+        mousePos.x < image.x + image.img_element.width &&
         mousePos.y > image.y &&
-        mousePos.y < image.y + image.img.height
+        mousePos.y < image.y + image.img_element.height
       );
     });
 
