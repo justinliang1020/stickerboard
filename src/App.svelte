@@ -8,6 +8,14 @@
     width: number;
     height: number;
     clicked: boolean;
+    handles: HandleInfo[];
+  }
+
+  interface HandleInfo {
+    x: number;
+    y: number;
+    size: number;
+    cursor: string;
   }
 
   const cornerHandleSize = 10;
@@ -69,6 +77,7 @@
             width: img_element.width,
             height: img_element.height,
             clicked: false,
+            handles: [],
           });
           drawImages();
         }
@@ -78,6 +87,36 @@
     reader.readAsDataURL(file);
 
     input.value = "";
+  }
+
+  function updateHandlePositions(image: ImageInfo) {
+    const size = 10; // Size of the square handle
+    image.handles = [
+      {
+        x: image.x - size / 2,
+        y: image.y - size / 2,
+        size,
+        cursor: "nwse-resize",
+      }, // Top-left
+      {
+        x: image.x + image.width - size / 2,
+        y: image.y - size / 2,
+        size,
+        cursor: "nesw-resize",
+      }, // Top-right
+      {
+        x: image.x - size / 2,
+        y: image.y + image.height - size / 2,
+        size,
+        cursor: "nesw-resize",
+      }, // Bottom-left
+      {
+        x: image.x + image.width - size / 2,
+        y: image.y + image.height - size / 2,
+        size,
+        cursor: "nwse-resize",
+      }, // Bottom-right
+    ];
   }
 
   function drawImages() {
@@ -98,31 +137,11 @@
         ctx.lineWidth = 5; // Adjust for desired border thickness
         ctx.strokeRect(image.x, image.y, image.width, image.height);
 
-        // draw images
-        const handles = [
-          {
-            x: image.x - cornerHandleSize / 2,
-            y: image.y - cornerHandleSize / 2,
-          }, // Top-left
-          {
-            x: image.x + image.width - cornerHandleSize / 2,
-            y: image.y - cornerHandleSize / 2,
-          }, // Top-right
-          {
-            x: image.x - cornerHandleSize / 2,
-            y: image.y + image.height - cornerHandleSize / 2,
-          }, // Bottom-left
-          {
-            x: image.x + image.width - cornerHandleSize / 2,
-            y: image.y + image.height - cornerHandleSize / 2,
-          }, // Bottom-right
-        ];
-
-        // Draw each handle
-        handles.forEach((handle) => {
+        updateHandlePositions(image);
+        image.handles.forEach((handle) => {
           if (!ctx) return;
           ctx.fillStyle = "blue";
-          ctx.fillRect(handle.x, handle.y, cornerHandleSize, cornerHandleSize);
+          ctx.fillRect(handle.x, handle.y, handle.size, handle.size);
         });
       }
     });
