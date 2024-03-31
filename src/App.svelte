@@ -5,6 +5,8 @@
     img_element: HTMLImageElement;
     x: number;
     y: number;
+    width: number;
+    height: number;
     clicked: boolean;
   }
 
@@ -64,6 +66,8 @@
             img_element,
             x: 10,
             y: 10,
+            width: img_element.width,
+            height: img_element.height,
             clicked: false,
           });
           drawImages();
@@ -81,38 +85,42 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     images.forEach((image) => {
       if (!ctx) return;
-      ctx.drawImage(image.img_element, image.x, image.y);
+      ctx.drawImage(
+        image.img_element,
+        image.x,
+        image.y,
+        image.width,
+        image.height
+      );
       if (image.clicked) {
         // draw border
         ctx.strokeStyle = "pink";
         ctx.lineWidth = 5; // Adjust for desired border thickness
-        ctx.strokeRect(
-          image.x,
-          image.y,
-          image.img_element.width,
-          image.img_element.height
-        );
+        ctx.strokeRect(image.x, image.y, image.width, image.height);
 
         // draw images
         const handles = [
-          { x: image.x - cornerHandleSize / 2, y: image.y - cornerHandleSize / 2 }, // Top-left
           {
-            x: image.x + image.img_element.width - cornerHandleSize / 2,
+            x: image.x - cornerHandleSize / 2,
+            y: image.y - cornerHandleSize / 2,
+          }, // Top-left
+          {
+            x: image.x + image.width - cornerHandleSize / 2,
             y: image.y - cornerHandleSize / 2,
           }, // Top-right
           {
             x: image.x - cornerHandleSize / 2,
-            y: image.y + image.img_element.height - cornerHandleSize / 2,
+            y: image.y + image.height - cornerHandleSize / 2,
           }, // Bottom-left
           {
-            x: image.x + image.img_element.width - cornerHandleSize / 2,
-            y: image.y + image.img_element.height - cornerHandleSize / 2,
+            x: image.x + image.width - cornerHandleSize / 2,
+            y: image.y + image.height - cornerHandleSize / 2,
           }, // Bottom-right
         ];
 
         // Draw each handle
         handles.forEach((handle) => {
-          if (!ctx) return; 
+          if (!ctx) return;
           ctx.fillStyle = "blue";
           ctx.fillRect(handle.x, handle.y, cornerHandleSize, cornerHandleSize);
         });
@@ -126,9 +134,9 @@
     images.forEach((image) => {
       if (
         mousePos.x > image.x &&
-        mousePos.x < image.x + image.img_element.width &&
+        mousePos.x < image.x + image.width &&
         mousePos.y > image.y &&
-        mousePos.y < image.y + image.img_element.height
+        mousePos.y < image.y + image.height
       ) {
         imageFound = true;
         if (image.clicked === false) {
@@ -168,9 +176,9 @@
     const isOverImage = images.some((image) => {
       return (
         mousePos.x > image.x &&
-        mousePos.x < image.x + image.img_element.width &&
+        mousePos.x < image.x + image.width &&
         mousePos.y > image.y &&
-        mousePos.y < image.y + image.img_element.height
+        mousePos.y < image.y + image.height
       );
     });
 
