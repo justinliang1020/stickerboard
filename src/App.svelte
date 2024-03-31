@@ -246,10 +246,53 @@
       }
     });
 
-    if (!isDragging || !draggedImage) return;
-    draggedImage.x = mousePos.x - offsetX;
-    draggedImage.y = mousePos.y - offsetY;
-    drawImages();
+    if (isResizing && activeHandle && draggedImage) {
+      const originalWidth = draggedImage.width;
+      const originalHeight = draggedImage.height;
+      const aspectRatio = originalWidth / originalHeight;
+
+      let newWidth, newHeight;
+
+      // Calculate the distance moved in both x and y directions
+      let dx = mousePos.x - draggedImage.x;
+      let dy = mousePos.y - draggedImage.y;
+
+      switch (activeHandle.corner) {
+        case "top-left":
+          newWidth = originalWidth - dx;
+          newHeight = newWidth / aspectRatio;
+          draggedImage.x = mousePos.x;
+          draggedImage.y = draggedImage.y + originalHeight - newHeight;
+          break;
+        case "top-right":
+          newWidth = dx;
+          newHeight = newWidth / aspectRatio;
+          draggedImage.y = draggedImage.y + originalHeight - newHeight;
+          break;
+        case "bottom-left":
+          newWidth = originalWidth - dx;
+          newHeight = newWidth / aspectRatio;
+          draggedImage.x = mousePos.x;
+          break;
+        case "bottom-right":
+          newWidth = dx;
+          newHeight = newWidth / aspectRatio;
+          break;
+      }
+
+      // Apply the new dimensions while preserving aspect ratio
+      if (newWidth > 0 && newHeight > 0) {
+        draggedImage.width = newWidth;
+        draggedImage.height = newHeight;
+        updateHandlePositions(draggedImage);
+        drawImages();
+      }
+    } else if (isDragging && draggedImage) {
+      draggedImage.x = mousePos.x - offsetX;
+      draggedImage.y = mousePos.y - offsetY;
+      updateHandlePositions(draggedImage);
+      drawImages();
+    }
   }
 
   function stopDrag() {
