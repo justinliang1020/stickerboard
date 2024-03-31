@@ -8,6 +8,8 @@
     clicked: boolean;
   }
 
+  const cornerHandleSize = 10;
+
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
   let images: ImageInfo[] = [];
@@ -90,6 +92,30 @@
           image.img_element.width,
           image.img_element.height
         );
+
+        // draw images
+        const handles = [
+          { x: image.x - cornerHandleSize / 2, y: image.y - cornerHandleSize / 2 }, // Top-left
+          {
+            x: image.x + image.img_element.width - cornerHandleSize / 2,
+            y: image.y - cornerHandleSize / 2,
+          }, // Top-right
+          {
+            x: image.x - cornerHandleSize / 2,
+            y: image.y + image.img_element.height - cornerHandleSize / 2,
+          }, // Bottom-left
+          {
+            x: image.x + image.img_element.width - cornerHandleSize / 2,
+            y: image.y + image.img_element.height - cornerHandleSize / 2,
+          }, // Bottom-right
+        ];
+
+        // Draw each handle
+        handles.forEach((handle) => {
+          if (!ctx) return; 
+          ctx.fillStyle = "blue";
+          ctx.fillRect(handle.x, handle.y, cornerHandleSize, cornerHandleSize);
+        });
       }
     });
   }
