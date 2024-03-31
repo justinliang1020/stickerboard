@@ -199,11 +199,28 @@
     // Check if the mouse is over any of the images
     const mousePos = getMousePos(canvas, event);
 
-    const isOverImage = images.some((image) => {
-      cursorIsOverImage(mousePos, image);
+    // Set cursor style
+    canvas.style.cursor = "default";
+    images.forEach((image) => {
+      if (cursorIsOverImage(mousePos, image)) {
+        canvas.style.cursor = "pointer";
+      }
+
+      if (image.clicked) {
+        image.handles.forEach((handle) => {
+          if (
+            mousePos.x >= handle.x &&
+            mousePos.x <= handle.x + handle.size &&
+            mousePos.y >= handle.y &&
+            mousePos.y <= handle.y + handle.size
+          ) {
+            // If over a handle, change the cursor based on the handle's cursor property.
+            canvas.style.cursor = handle.cursor;
+          }
+        });
+      }
     });
 
-    canvas.style.cursor = isOverImage ? "pointer" : "default";
     if (!isDragging || !draggedImage) return;
     draggedImage.x = mousePos.x - offsetX;
     draggedImage.y = mousePos.y - offsetY;
