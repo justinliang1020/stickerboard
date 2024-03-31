@@ -95,7 +95,7 @@
   }
 
   function updateHandlePositions(image: ImageInfo) {
-    const size = 10; // Size of the square handle
+    const size = 15; // Size of the square handle
     image.handles = [
       {
         x: image.x - size / 2,
