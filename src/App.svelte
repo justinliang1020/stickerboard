@@ -128,16 +128,23 @@
     });
   }
 
+  function cursorIsOverImage(
+    mousePos: { x: number; y: number },
+    image: ImageInfo
+  ) {
+    return (
+      mousePos.x > image.x &&
+      mousePos.x < image.x + image.width &&
+      mousePos.y > image.y &&
+      mousePos.y < image.y + image.height
+    );
+  }
+
   function onCanvasMouseDown(event: MouseEvent) {
     const mousePos = getMousePos(canvas, event);
     let imageFound = false; // Flag to check if an image is found under the click
     images.forEach((image) => {
-      if (
-        mousePos.x > image.x &&
-        mousePos.x < image.x + image.width &&
-        mousePos.y > image.y &&
-        mousePos.y < image.y + image.height
-      ) {
+      if (cursorIsOverImage(mousePos, image)) {
         imageFound = true;
         if (image.clicked === false) {
           image.clicked = true;
@@ -174,12 +181,7 @@
     const mousePos = getMousePos(canvas, event);
 
     const isOverImage = images.some((image) => {
-      return (
-        mousePos.x > image.x &&
-        mousePos.x < image.x + image.width &&
-        mousePos.y > image.y &&
-        mousePos.y < image.y + image.height
-      );
+      cursorIsOverImage(mousePos, image);
     });
 
     canvas.style.cursor = isOverImage ? "pointer" : "default";
