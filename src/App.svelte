@@ -26,6 +26,8 @@
   let isDragging: boolean = false;
   let draggedImage: ImageInfo | null = null;
   let offsetX: number, offsetY: number;
+  let isResizing: boolean = false;
+  let activeHandle: HandleInfo | null = null;
 
   onMount(() => {
     ctx = canvas.getContext("2d");
@@ -161,26 +163,42 @@
 
   function onCanvasMouseDown(event: MouseEvent) {
     const mousePos = getMousePos(canvas, event);
-    let imageFound = false; // Flag to check if an image is found under the click
-    images.forEach((image) => {
-      if (cursorIsOverImage(mousePos, image)) {
-        imageFound = true;
-        if (image.clicked === false) {
-          image.clicked = true;
-        }
+    let interactionFound = false; // Flag to check if an image or handle is interacted with
 
-        // Prepare for dragging
-        isDragging = true;
-        draggedImage = image;
-        offsetX = mousePos.x - image.x;
-        offsetY = mousePos.y - image.y;
-      } else {
-        // Unclick other images
-        image.clicked = false;
+    images.forEach((image) => {
+      // Check for handle click first
+      image.handles.forEach((handle) => {
+        if (
+          mousePos.x >= handle.x &&
+          mousePos.x <= handle.x + handle.size &&
+          mousePos.y >= handle.y &&
+          mousePos.y <= handle.y + handle.size
+        ) {
+          interactionFound = true;
+          isResizing = true;
+          activeHandle = handle;
+          draggedImage = image;
+          image.clicked = true; // Ensure the image remains clicked
+          return;
+        }
+      });
+
+      if (!interactionFound) {
+        // Check for image click
+        if (cursorIsOverImage(mousePos, image) && !isResizing) {
+          interactionFound = true;
+          image.clicked = true;
+          isDragging = true;
+          draggedImage = image;
+          offsetX = mousePos.x - image.x;
+          offsetY = mousePos.y - image.y;
+        } else if (!isResizing) {
+          image.clicked = false;
+        }
       }
     });
 
-    if (!imageFound) {
+    if (!interactionFound) {
       images.forEach((image) => (image.clicked = false)); // Unclick all if clicked on empty space
     }
 
@@ -228,8 +246,16 @@
   }
 
   function stopDrag() {
-    isDragging = false;
-    draggedImage = null;
+    if (isResizing) {
+      // Reset resizing state
+      isResizing = false;
+      activeHandle = null;
+    }
+    if (isDragging) {
+      // Reset dragging state
+      isDragging = false;
+      draggedImage = null;
+    }
   }
 
   function handleUploadClick() {
