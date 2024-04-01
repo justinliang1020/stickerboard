@@ -16,6 +16,8 @@ export abstract class MediaInfo {
     public handles: HandleInfo[] = []
   ) {}
 
+  public z = 0;
+
   // Method to draw the media itself; to be implemented by subclasses
   abstract draw(ctx: CanvasRenderingContext2D): void;
 

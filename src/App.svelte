@@ -78,6 +78,7 @@
   function drawMedia() {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // medias.sort((a, b) => b.z - a.z); // Sort medias array based on z-index from highest to lowest
     medias.forEach((media) => {
       if (!ctx) return;
       media.draw(ctx);
@@ -104,9 +105,9 @@
     const mousePos = getMousePos(canvas, event);
     let interactionFound = false; // Flag to check if an image or handle is interacted with
 
-    medias.forEach((image) => {
+    for (let i = medias.length - 1; i >= 0; i--) {
       // Check for handle click first
-      image.handles.forEach((handle) => {
+      medias[i].handles.forEach((handle) => {
         if (
           mousePos.x >= handle.x &&
           mousePos.x <= handle.x + handle.size &&
@@ -116,22 +117,25 @@
           interactionFound = true;
           isResizing = true;
           activeHandle = handle;
-          selectedMedia = image;
+          selectedMedia = medias[i];
+          drawMedia();
           return;
         }
       });
 
       if (!interactionFound) {
         // Check for image click
-        if (cursorIsOverMedia(mousePos, image) && !isResizing) {
+        if (cursorIsOverMedia(mousePos, medias[i]) && !isResizing) {
           interactionFound = true;
           isDragging = true;
-          selectedMedia = image;
-          offsetX = mousePos.x - image.x;
-          offsetY = mousePos.y - image.y;
+          selectedMedia = medias[i];
+          offsetX = mousePos.x - medias[i].x;
+          offsetY = mousePos.y - medias[i].y;
+          drawMedia();
+          return;
         }
       }
-    });
+    };
 
     if (!interactionFound) {
       selectedMedia = null;
@@ -232,13 +236,25 @@
     if (isDragging) {
       // Reset dragging state
       isDragging = false;
-      selectedMedia = null;
     }
   }
 
   function handleUploadClick() {
     const fileInput = document.getElementById("fileInput");
     fileInput?.click(); // Programmatically trigger the file input click
+    drawMedia();
+  }
+
+  function handleSendToBack() {
+    if (!selectedMedia) return;
+
+    const index = medias.indexOf(selectedMedia);
+    if (index > 0) {
+      medias.splice(index, 1);
+      medias.unshift(selectedMedia);
+    }
+
+    drawMedia();
   }
 </script>
 
@@ -264,7 +280,7 @@
         id="fileInput"
         hidden
       />
-      <button>Button 2</button>
+      <button on:click={handleSendToBack}>Send To Back</button>
       <button>Button 3</button>
     </div>
   </div>
