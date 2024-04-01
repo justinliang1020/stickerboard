@@ -15,10 +15,10 @@
     y: number;
     size: number;
     cursor: HandleCursor;
-    corner: Corner;
+    corner: HandleCorner;
   }
   type HandleCursor = "nwse-resize" | "nesw-resize";
-  type Corner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  type HandleCorner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
