@@ -20,7 +20,5 @@ export class ImageInfo extends MediaInfo {
   draw(ctx: CanvasRenderingContext2D): void {
     if (!ctx) return;
     ctx.drawImage(this.img_element, this.x, this.y, this.width, this.height);
-    this.drawHandles(ctx); // Additionally draw resize handles
   }
-
 }

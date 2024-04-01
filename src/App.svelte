@@ -1,13 +1,13 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { ImageInfo } from "./lib/models/ImageInfo";
-  import type { HandleInfo } from "./lib/models/MediaInfo";
+  import type { HandleInfo, MediaInfo } from "./lib/models/MediaInfo";
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
-  let images: ImageInfo[] = [];
+  let medias: MediaInfo[] = [];
   let isDragging: boolean = false;
-  let selectedImage: ImageInfo | null = null;
+  let selectedMedia: MediaInfo | null = null;
   let offsetX: number, offsetY: number;
   let isResizing: boolean = false;
   let activeHandle: HandleInfo | null = null;
@@ -29,19 +29,19 @@
     if (canvas) {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      drawImages(); // Redraw images to fit new dimensions
+      drawMedia(); // Redraw images to fit new dimensions
     }
   }
 
   function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Backspace" || event.key === "Delete") {
-      const selectedImageIndex = selectedImage
-        ? images.indexOf(selectedImage)
+      const selectedImageIndex = selectedMedia
+        ? medias.indexOf(selectedMedia)
         : -1;
       if (selectedImageIndex !== -1) {
         // Remove the selected image
-        images.splice(selectedImageIndex, 1);
-        drawImages(); // Redraw the canvas to reflect the removal
+        medias.splice(selectedImageIndex, 1);
+        drawMedia(); // Redraw the canvas to reflect the removal
       }
       // Prevent the default action of backspace to navigate back
       event.preventDefault();
@@ -64,8 +64,8 @@
             img_element.height,
             img_element
           );
-          images.push(imageInfo);
-          drawImages();
+          medias.push(imageInfo);
+          drawMedia();
         }
       };
       img_element.src = e.target?.result as string;
@@ -75,71 +75,22 @@
     input.value = "";
   }
 
-  function updateHandlePositions(image: ImageInfo) {
-    const size = 20; // Size of the square handle
-    image.handles = [
-      {
-        x: image.x - size / 2,
-        y: image.y - size / 2,
-        size,
-        cursor: "nwse-resize",
-        corner: "top-left",
-      },
-      {
-        x: image.x + image.width - size / 2,
-        y: image.y - size / 2,
-        size,
-        cursor: "nesw-resize",
-        corner: "top-right",
-      },
-      {
-        x: image.x - size / 2,
-        y: image.y + image.height - size / 2,
-        size,
-        cursor: "nesw-resize",
-        corner: "bottom-left",
-      },
-      {
-        x: image.x + image.width - size / 2,
-        y: image.y + image.height - size / 2,
-        size,
-        cursor: "nwse-resize",
-        corner: "bottom-right",
-      },
-    ];
-  }
-
-  function drawImages() {
+  function drawMedia() {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    images.forEach((image) => {
+    medias.forEach((media) => {
       if (!ctx) return;
-      ctx.drawImage(
-        image.img_element,
-        image.x,
-        image.y,
-        image.width,
-        image.height
-      );
-      if (image === selectedImage) {
-        // draw border
-        ctx.strokeStyle = "pink";
-        ctx.lineWidth = 5; // Adjust for desired border thickness
-        ctx.strokeRect(image.x, image.y, image.width, image.height);
-
-        updateHandlePositions(image);
-        image.handles.forEach((handle) => {
-          if (!ctx) return;
-          ctx.fillStyle = "blue";
-          ctx.fillRect(handle.x, handle.y, handle.size, handle.size);
-        });
+      media.draw(ctx);
+      if (media === selectedMedia) {
+        media.updateHandlePositions();
+        media.drawBorderAndHandles(ctx);
       }
     });
   }
 
-  function cursorIsOverImage(
+  function cursorIsOverMedia(
     mousePos: { x: number; y: number },
-    image: ImageInfo
+    image: MediaInfo
   ) {
     return (
       mousePos.x > image.x &&
@@ -153,7 +104,7 @@
     const mousePos = getMousePos(canvas, event);
     let interactionFound = false; // Flag to check if an image or handle is interacted with
 
-    images.forEach((image) => {
+    medias.forEach((image) => {
       // Check for handle click first
       image.handles.forEach((handle) => {
         if (
@@ -165,17 +116,17 @@
           interactionFound = true;
           isResizing = true;
           activeHandle = handle;
-          selectedImage = image;
+          selectedMedia = image;
           return;
         }
       });
 
       if (!interactionFound) {
         // Check for image click
-        if (cursorIsOverImage(mousePos, image) && !isResizing) {
+        if (cursorIsOverMedia(mousePos, image) && !isResizing) {
           interactionFound = true;
           isDragging = true;
-          selectedImage = image;
+          selectedMedia = image;
           offsetX = mousePos.x - image.x;
           offsetY = mousePos.y - image.y;
         }
@@ -183,10 +134,10 @@
     });
 
     if (!interactionFound) {
-      selectedImage = null;
+      selectedMedia = null;
     }
 
-    drawImages(); // Redraw to reflect changes
+    drawMedia(); // Redraw to reflect changes
   }
 
   function getMousePos(canvas: HTMLCanvasElement, evt: MouseEvent) {
@@ -203,12 +154,12 @@
 
     // Set cursor style
     canvas.style.cursor = "default";
-    images.forEach((image) => {
-      if (cursorIsOverImage(mousePos, image)) {
+    medias.forEach((image) => {
+      if (cursorIsOverMedia(mousePos, image)) {
         canvas.style.cursor = "pointer";
       }
 
-      if (image === selectedImage) {
+      if (image === selectedMedia) {
         image.handles.forEach((handle) => {
           if (
             mousePos.x >= handle.x &&
@@ -223,33 +174,33 @@
       }
     });
 
-    if (isResizing && activeHandle && selectedImage) {
-      const originalWidth = selectedImage.width;
-      const originalHeight = selectedImage.height;
+    if (isResizing && activeHandle && selectedMedia) {
+      const originalWidth = selectedMedia.width;
+      const originalHeight = selectedMedia.height;
       const aspectRatio = originalWidth / originalHeight;
 
       let newWidth, newHeight;
 
       // Calculate the distance moved in both x and y directions
-      let dx = mousePos.x - selectedImage.x;
-      let dy = mousePos.y - selectedImage.y;
+      let dx = mousePos.x - selectedMedia.x;
+      let dy = mousePos.y - selectedMedia.y;
 
       switch (activeHandle.corner) {
         case "top-left":
           newWidth = originalWidth - dx;
           newHeight = newWidth / aspectRatio;
-          selectedImage.x = mousePos.x;
-          selectedImage.y = selectedImage.y + originalHeight - newHeight;
+          selectedMedia.x = mousePos.x;
+          selectedMedia.y = selectedMedia.y + originalHeight - newHeight;
           break;
         case "top-right":
           newWidth = dx;
           newHeight = newWidth / aspectRatio;
-          selectedImage.y = selectedImage.y + originalHeight - newHeight;
+          selectedMedia.y = selectedMedia.y + originalHeight - newHeight;
           break;
         case "bottom-left":
           newWidth = originalWidth - dx;
           newHeight = newWidth / aspectRatio;
-          selectedImage.x = mousePos.x;
+          selectedMedia.x = mousePos.x;
           break;
         case "bottom-right":
           newWidth = dx;
@@ -259,16 +210,16 @@
 
       // Apply the new dimensions while preserving aspect ratio
       if (newWidth > 0 && newHeight > 0) {
-        selectedImage.width = newWidth;
-        selectedImage.height = newHeight;
-        updateHandlePositions(selectedImage);
-        drawImages();
+        selectedMedia.width = newWidth;
+        selectedMedia.height = newHeight;
+        selectedMedia.updateHandlePositions();
+        drawMedia();
       }
-    } else if (isDragging && selectedImage) {
-      selectedImage.x = mousePos.x - offsetX;
-      selectedImage.y = mousePos.y - offsetY;
-      updateHandlePositions(selectedImage);
-      drawImages();
+    } else if (isDragging && selectedMedia) {
+      selectedMedia.x = mousePos.x - offsetX;
+      selectedMedia.y = mousePos.y - offsetY;
+      selectedMedia.updateHandlePositions();
+      drawMedia();
     }
   }
 
@@ -281,7 +232,7 @@
     if (isDragging) {
       // Reset dragging state
       isDragging = false;
-      selectedImage = null;
+      selectedMedia = null;
     }
   }
 
