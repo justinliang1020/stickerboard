@@ -1,24 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
-
-  interface ImageInfo {
-    img_element: HTMLImageElement;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    handles: HandleInfo[];
-  }
-
-  interface HandleInfo {
-    x: number;
-    y: number;
-    size: number;
-    cursor: HandleCursor;
-    corner: HandleCorner;
-  }
-  type HandleCursor = "nwse-resize" | "nesw-resize";
-  type HandleCorner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  import { ImageInfo } from "./lib/models/ImageInfo";
+  import type { HandleInfo } from "./lib/models/MediaInfo";
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
@@ -74,14 +57,14 @@
       const img_element = new Image();
       img_element.onload = () => {
         if (ctx) {
-          images.push({
-            img_element,
-            x: 10,
-            y: 10,
-            width: img_element.width,
-            height: img_element.height,
-            handles: [],
-          });
+          const imageInfo = new ImageInfo(
+            10,
+            10,
+            img_element.width,
+            img_element.height,
+            img_element
+          );
+          images.push(imageInfo);
           drawImages();
         }
       };
