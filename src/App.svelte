@@ -52,7 +52,9 @@
 
   function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Backspace" || event.key === "Delete") {
-      const selectedImageIndex = selectedImage ? images.indexOf(selectedImage) : -1;
+      const selectedImageIndex = selectedImage
+        ? images.indexOf(selectedImage)
+        : -1;
       if (selectedImageIndex !== -1) {
         // Remove the selected image
         images.splice(selectedImageIndex, 1);
@@ -91,7 +93,7 @@
   }
 
   function updateHandlePositions(image: ImageInfo) {
-    const size = 15; // Size of the square handle
+    const size = 20; // Size of the square handle
     image.handles = [
       {
         x: image.x - size / 2,
@@ -198,7 +200,7 @@
     });
 
     if (!interactionFound) {
-      selectedImage = null; 
+      selectedImage = null;
     }
 
     drawImages(); // Redraw to reflect changes
