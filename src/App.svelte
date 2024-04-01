@@ -21,8 +21,6 @@
   type HandleCursor = "nwse-resize" | "nesw-resize";
   type Corner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
-  const cornerHandleSize = 10;
-
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
   let images: ImageInfo[] = [];
