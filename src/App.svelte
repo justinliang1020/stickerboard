@@ -7,7 +7,6 @@
     y: number;
     width: number;
     height: number;
-    clicked: boolean;
     handles: HandleInfo[];
   }
 
@@ -53,7 +52,7 @@
 
   function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Backspace" || event.key === "Delete") {
-      const selectedImageIndex = images.findIndex((image) => image.clicked);
+      const selectedImageIndex = selectedImage ? images.indexOf(selectedImage) : -1;
       if (selectedImageIndex !== -1) {
         // Remove the selected image
         images.splice(selectedImageIndex, 1);
@@ -79,7 +78,6 @@
             y: 10,
             width: img_element.width,
             height: img_element.height,
-            clicked: false,
             handles: [],
           });
           drawImages();
@@ -138,7 +136,7 @@
         image.width,
         image.height
       );
-      if (image.clicked) {
+      if (image === selectedImage) {
         // draw border
         ctx.strokeStyle = "pink";
         ctx.lineWidth = 5; // Adjust for desired border thickness
@@ -183,7 +181,6 @@
           isResizing = true;
           activeHandle = handle;
           selectedImage = image;
-          image.clicked = true; // Ensure the image remains clicked
           return;
         }
       });
@@ -192,19 +189,16 @@
         // Check for image click
         if (cursorIsOverImage(mousePos, image) && !isResizing) {
           interactionFound = true;
-          image.clicked = true;
           isDragging = true;
           selectedImage = image;
           offsetX = mousePos.x - image.x;
           offsetY = mousePos.y - image.y;
-        } else if (!isResizing) {
-          image.clicked = false;
         }
       }
     });
 
     if (!interactionFound) {
-      images.forEach((image) => (image.clicked = false)); // Unclick all if clicked on empty space
+      selectedImage = null; 
     }
 
     drawImages(); // Redraw to reflect changes
@@ -229,7 +223,7 @@
         canvas.style.cursor = "pointer";
       }
 
-      if (image.clicked) {
+      if (image === selectedImage) {
         image.handles.forEach((handle) => {
           if (
             mousePos.x >= handle.x &&
