@@ -23,18 +23,14 @@
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Backspace" || event.key === "Delete") {
-        const selectedImageIndex = selectedMedia
-          ? medias.indexOf(selectedMedia)
-          : -1;
-        if (selectedImageIndex !== -1) {
-          // Remove the selected image
-          medias.splice(selectedImageIndex, 1);
-          drawMedia(); // Redraw the canvas to reflect the removal
-        }
-        // Prevent the default action of backspace to navigate back
+        deleteSelectedMedia();
         event.preventDefault();
       } else if ((event.ctrlKey || event.metaKey) && event.key === "c") {
         copySelectedImageToClipboard();
+        event.preventDefault();
+      } else if ((event.ctrlKey || event.metaKey) && event.key === "x") {
+        copySelectedImageToClipboard();
+        deleteSelectedMedia();
         event.preventDefault();
       }
     }
@@ -102,6 +98,17 @@
     readFileAndDisplay(file);
 
     input.value = "";
+  }
+
+  function deleteSelectedMedia() {
+    const selectedMediaIndex = selectedMedia
+      ? medias.indexOf(selectedMedia)
+      : -1;
+    if (selectedMediaIndex !== -1) {
+      // Remove the selected image
+      medias.splice(selectedMediaIndex, 1);
+      drawMedia(); // Redraw the canvas to reflect the removal
+    }
   }
 
   function addImageToCanvas(imageSrc: string) {
