@@ -13,6 +13,67 @@
   let activeHandle: HandleInfo | null = null;
 
   onMount(() => {
+    function resizeCanvas() {
+      if (canvas) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        drawMedia(); // Redraw images to fit new dimensions
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Backspace" || event.key === "Delete") {
+        const selectedImageIndex = selectedMedia
+          ? medias.indexOf(selectedMedia)
+          : -1;
+        if (selectedImageIndex !== -1) {
+          // Remove the selected image
+          medias.splice(selectedImageIndex, 1);
+          drawMedia(); // Redraw the canvas to reflect the removal
+        }
+        // Prevent the default action of backspace to navigate back
+        event.preventDefault();
+      } else if ((event.ctrlKey || event.metaKey) && event.key === "c") {
+        copySelectedImageToClipboard();
+        event.preventDefault();
+      }
+    }
+
+    function handlePaste(event: ClipboardEvent) {
+      const items = event.clipboardData?.items;
+      if (items) {
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf("image") !== -1) {
+            const file = items[i].getAsFile();
+            if (!file) return;
+            readFileAndDisplay(file);
+          }
+        }
+      }
+    }
+
+    function handleDragOver(event: DragEvent) {
+      event.preventDefault(); // Necessary to allow dropping
+      canvas.style.backgroundColor = "rgba(173, 216, 230, 0.5)"; // Light blue color with some transparency
+    }
+
+    function handleDragEnter(event: DragEvent) {
+      event.preventDefault();
+    }
+
+    function handleDragLeave(event: DragEvent) {
+      event.preventDefault();
+      canvas.style.backgroundColor = "";
+    }
+
+    function handleDrop(event: DragEvent) {
+      event.preventDefault();
+      const file = event.dataTransfer?.files[0];
+      if (file) {
+        readFileAndDisplay(file);
+      }
+      canvas.style.backgroundColor = "";
+    }
     ctx = canvas.getContext("2d");
     resizeCanvas(); // Set initial size
     window.addEventListener("resize", resizeCanvas); // Adjust on window resize
@@ -22,42 +83,25 @@
     canvas.addEventListener("dragenter", handleDragEnter); // Optional: Visual cue
     canvas.addEventListener("dragleave", handleDragLeave); // Optional: Reset visual cue
     canvas.addEventListener("drop", handleDrop); // Handle file drop
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas); // Adjust on window resize
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("paste", handlePaste); // Listen for paste events
+      canvas.removeEventListener("dragover", handleDragOver); // Allows us to drop
+      canvas.removeEventListener("dragenter", handleDragEnter); // Optional: Visual cue
+      canvas.removeEventListener("dragleave", handleDragLeave); // Optional: Reset visual cue
+      canvas.removeEventListener("drop", handleDrop); // Handle file drop
+    };
   });
 
-  onDestroy(() => {
-    window.removeEventListener("resize", resizeCanvas);
-    window.removeEventListener("keydown", handleKeyDown);
-    window.removeEventListener("paste", handlePaste);
-    canvas.removeEventListener("dragover", handleDragOver);
-    canvas.removeEventListener("dragenter", handleDragEnter);
-    canvas.removeEventListener("dragleave", handleDragLeave);
-    canvas.removeEventListener("drop", handleDrop);
-  });
+  function handleButtonFileChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+    const file = input.files[0];
+    readFileAndDisplay(file);
 
-  function resizeCanvas() {
-    if (canvas) {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      drawMedia(); // Redraw images to fit new dimensions
-    }
-  }
-
-  function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === "Backspace" || event.key === "Delete") {
-      const selectedImageIndex = selectedMedia
-        ? medias.indexOf(selectedMedia)
-        : -1;
-      if (selectedImageIndex !== -1) {
-        // Remove the selected image
-        medias.splice(selectedImageIndex, 1);
-        drawMedia(); // Redraw the canvas to reflect the removal
-      }
-      // Prevent the default action of backspace to navigate back
-      event.preventDefault();
-    } else if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
-      copySelectedImageToClipboard();
-      event.preventDefault();
-    }
+    input.value = "";
   }
 
   function addImageToCanvas(imageSrc: string) {
@@ -77,51 +121,6 @@
       }
     };
     img_element.src = imageSrc; // Set the source of the image to trigger the load
-  }
-
-  function handleButtonFileChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (!input.files) return;
-    const file = input.files[0];
-    readFileAndDisplay(file);
-
-    input.value = "";
-  }
-
-  function handlePaste(event: ClipboardEvent) {
-    const items = event.clipboardData?.items;
-    if (items) {
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf("image") !== -1) {
-          const file = items[i].getAsFile();
-          if (!file) return;
-          readFileAndDisplay(file);
-        }
-      }
-    }
-  }
-
-  function handleDragOver(event: DragEvent) {
-    event.preventDefault(); // Necessary to allow dropping
-    canvas.style.backgroundColor = "rgba(173, 216, 230, 0.5)"; // Light blue color with some transparency
-  }
-
-  function handleDragEnter(event: DragEvent) {
-    event.preventDefault();
-  }
-
-  function handleDragLeave(event: DragEvent) {
-    event.preventDefault();
-    canvas.style.backgroundColor = "";
-  }
-
-  function handleDrop(event: DragEvent) {
-    event.preventDefault();
-    const file = event.dataTransfer?.files[0];
-    if (file) {
-      readFileAndDisplay(file);
-    }
-    canvas.style.backgroundColor = "";
   }
 
   function readFileAndDisplay(file: File) {
