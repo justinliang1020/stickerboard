@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { ImageInfo } from "./lib/models/ImageInfo";
   import { MediaInfo, type HandleInfo } from "./lib/models/MediaInfo";
-  import girImage from './assets/gir.jpeg';
+  import girImage from "./assets/gir.jpeg";
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
@@ -12,6 +12,10 @@
   let offsetX: number, offsetY: number;
   let isResizing: boolean = false;
   let activeHandle: HandleInfo | null = null;
+
+  // $: drawMedia();
+  $: medias, drawMedia();
+  $: selectedMedia, drawMedia();
 
   onMount(() => {
     ctx = canvas.getContext("2d");
@@ -25,13 +29,12 @@
     canvas.addEventListener("drop", handleDrop); // Handle file drop
 
     // add default image
-    addImageToCanvas(girImage, 100, 100)
+    addImageToCanvas(girImage, 100, 100);
 
     function resizeCanvas() {
       if (canvas) {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        drawMedia(); // Redraw images to fit new dimensions
       }
     }
 
@@ -52,7 +55,6 @@
           break;
         case event.key === "Escape":
           selectedMedia = null;
-          drawMedia();
           event.preventDefault();
           break;
       }
@@ -114,13 +116,12 @@
   }
 
   function deleteSelectedMedia() {
-    const selectedMediaIndex = selectedMedia
-      ? medias.indexOf(selectedMedia)
-      : -1;
-    if (selectedMediaIndex !== -1) {
-      // Remove the selected image
-      medias.splice(selectedMediaIndex, 1);
-      drawMedia(); // Redraw the canvas to reflect the removal
+    if (!selectedMedia) return;
+
+    const index = medias.findIndex((media) => media === selectedMedia);
+    if (index !== -1) {
+      medias = [...medias.slice(0, index), ...medias.slice(index + 1)];
+      selectedMedia = null;
     }
   }
 
@@ -136,8 +137,8 @@
           img_element.height,
           img_element
         );
-        medias.push(imageInfo); // Add to your media array
-        drawMedia(); // Redraw the canvas to show the new image
+        medias = [...medias, imageInfo];
+        // drawMedia(); // Needed since onload is async and isn't caught by svelte reactivity
       }
     };
     img_element.src = imageSrc; // Set the source of the image to trigger the load
@@ -220,7 +221,6 @@
           isResizing = true;
           activeHandle = handle;
           selectedMedia = medias[i];
-          drawMedia();
           return;
         }
       });
@@ -233,7 +233,6 @@
           selectedMedia = medias[i];
           offsetX = mousePos.x - medias[i].x;
           offsetY = mousePos.y - medias[i].y;
-          drawMedia();
           return;
         }
       }
@@ -242,8 +241,6 @@
     if (!interactionFound) {
       selectedMedia = null;
     }
-
-    drawMedia(); // Redraw to reflect changes
   }
 
   function getMousePos(canvas: HTMLCanvasElement, evt: MouseEvent) {
@@ -319,13 +316,11 @@
         selectedMedia.width = newWidth;
         selectedMedia.height = newHeight;
         selectedMedia.updateHandlePositions();
-        drawMedia();
       }
     } else if (isDragging && selectedMedia) {
       selectedMedia.x = mousePos.x - offsetX;
       selectedMedia.y = mousePos.y - offsetY;
       selectedMedia.updateHandlePositions();
-      drawMedia();
     }
   }
 
@@ -344,7 +339,6 @@
   function handleUploadClick() {
     const fileInput = document.getElementById("fileInput");
     fileInput?.click(); // Programmatically trigger the file input click
-    drawMedia();
   }
 
   function handleSendToBack() {
@@ -352,11 +346,9 @@
 
     const index = medias.indexOf(selectedMedia);
     if (index > 0) {
-      medias.splice(index, 1);
-      medias.unshift(selectedMedia);
+      const item = medias[index];
+      medias = [item, ...medias.slice(0, index), ...medias.slice(index + 1)];
     }
-
-    drawMedia();
   }
 </script>
 
