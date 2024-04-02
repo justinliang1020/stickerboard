@@ -50,6 +50,11 @@
           deleteSelectedMedia();
           event.preventDefault();
           break;
+        case event.key === "Escape":
+          selectedMedia = null;
+          drawMedia();
+          event.preventDefault();
+          break;
       }
     }
 
