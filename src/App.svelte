@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { ImageInfo } from "./lib/models/ImageInfo";
-  import type { HandleInfo, MediaInfo } from "./lib/models/MediaInfo";
+  import { MediaInfo, type HandleInfo } from "./lib/models/MediaInfo";
+  import girImage from './assets/gir.jpeg';
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
@@ -13,6 +14,19 @@
   let activeHandle: HandleInfo | null = null;
 
   onMount(() => {
+    ctx = canvas.getContext("2d");
+    resizeCanvas(); // Set initial size
+    window.addEventListener("resize", resizeCanvas); // Adjust on window resize
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("paste", handlePaste); // Listen for paste events
+    canvas.addEventListener("dragover", handleDragOver); // Allows us to drop
+    canvas.addEventListener("dragenter", handleDragEnter); // Optional: Visual cue
+    canvas.addEventListener("dragleave", handleDragLeave); // Optional: Reset visual cue
+    canvas.addEventListener("drop", handleDrop); // Handle file drop
+
+    // add default image
+    addImageToCanvas(girImage, 100, 100)
+
     function resizeCanvas() {
       if (canvas) {
         canvas.width = window.innerWidth;
@@ -70,16 +84,6 @@
       }
       canvas.style.backgroundColor = "";
     }
-    ctx = canvas.getContext("2d");
-    resizeCanvas(); // Set initial size
-    window.addEventListener("resize", resizeCanvas); // Adjust on window resize
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("paste", handlePaste); // Listen for paste events
-    canvas.addEventListener("dragover", handleDragOver); // Allows us to drop
-    canvas.addEventListener("dragenter", handleDragEnter); // Optional: Visual cue
-    canvas.addEventListener("dragleave", handleDragLeave); // Optional: Reset visual cue
-    canvas.addEventListener("drop", handleDrop); // Handle file drop
-
     return () => {
       window.removeEventListener("resize", resizeCanvas); // Adjust on window resize
       window.removeEventListener("keydown", handleKeyDown);
@@ -111,14 +115,14 @@
     }
   }
 
-  function addImageToCanvas(imageSrc: string) {
+  function addImageToCanvas(imageSrc: string, x: number = 10, y: number = 10) {
     const img_element = new Image();
     img_element.onload = () => {
       if (ctx) {
         // Assuming your ImageInfo constructor takes parameters for x, y, width, height, and the image element
         const imageInfo = new ImageInfo(
-          10, // Initial x position
-          10, // Initial y position
+          x,
+          y,
           img_element.width,
           img_element.height,
           img_element
