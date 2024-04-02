@@ -17,8 +17,12 @@ export class ImageInfo extends MediaInfo {
   }
 
   // Concrete implementation for drawing an image
-  draw(ctx: CanvasRenderingContext2D): void {
+  draw(
+    ctx: CanvasRenderingContext2D,
+    x: number = this.x,
+    y: number = this.y
+  ): void {
     if (!ctx) return;
-    ctx.drawImage(this.img_element, this.x, this.y, this.width, this.height);
+    ctx.drawImage(this.img_element, x, y, this.width, this.height);
   }
 }

@@ -19,7 +19,7 @@ export abstract class MediaInfo {
   public z = 0;
 
   // Method to draw the media itself; to be implemented by subclasses
-  abstract draw(ctx: CanvasRenderingContext2D): void;
+  abstract draw(ctx: CanvasRenderingContext2D, x?: number, y?: number): void;
 
   drawBorderAndHandles(ctx: CanvasRenderingContext2D) {
     ctx.strokeStyle = "pink";
