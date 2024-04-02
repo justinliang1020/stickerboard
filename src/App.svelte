@@ -36,16 +36,20 @@
     }
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Backspace" || event.key === "Delete") {
-        deleteSelectedMedia();
-        event.preventDefault();
-      } else if ((event.ctrlKey || event.metaKey) && event.key === "c") {
-        copySelectedImageToClipboard();
-        event.preventDefault();
-      } else if ((event.ctrlKey || event.metaKey) && event.key === "x") {
-        copySelectedImageToClipboard();
-        deleteSelectedMedia();
-        event.preventDefault();
+      switch (true) {
+        case event.key === "Backspace" || event.key === "Delete":
+          deleteSelectedMedia();
+          event.preventDefault();
+          break;
+        case (event.ctrlKey || event.metaKey) && event.key === "c":
+          copySelectedImageToClipboard();
+          event.preventDefault();
+          break;
+        case (event.ctrlKey || event.metaKey) && event.key === "x":
+          copySelectedImageToClipboard();
+          deleteSelectedMedia();
+          event.preventDefault();
+          break;
       }
     }
 
