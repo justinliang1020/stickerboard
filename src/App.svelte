@@ -54,6 +54,9 @@
       }
       // Prevent the default action of backspace to navigate back
       event.preventDefault();
+    } else if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
+      copySelectedImageToClipboard();
+      event.preventDefault();
     }
   }
 
@@ -128,6 +131,32 @@
       addImageToCanvas(e.target?.result as string);
     };
     reader.readAsDataURL(file);
+  }
+
+  async function copySelectedImageToClipboard() {
+    if (!selectedMedia || !ctx || !(selectedMedia instanceof ImageInfo)) return;
+
+    // Create a temporary canvas with dimensions matching the selected image
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCanvas.width = selectedMedia.width;
+    tempCanvas.height = selectedMedia.height;
+
+    if (!tempCtx) return;
+
+    // Draw the image at (0, 0) on the temporary canvas using the adjusted draw method
+    selectedMedia.draw(tempCtx, 0, 0); // The x, y here are explicitly set to 0, 0
+
+    // Convert the temporary canvas to a Blob for the clipboard
+    tempCanvas.toBlob((blob) => {
+      if (!blob) return;
+      navigator.clipboard
+        .write([new ClipboardItem({ "image/png": blob })])
+        .then(() => console.log("Image copied to clipboard"))
+        .catch((err) =>
+          console.error("Error copying image to clipboard:", err)
+        );
+    }, "image/png");
   }
 
   function drawMedia() {
