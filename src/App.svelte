@@ -47,27 +47,32 @@
     }
   }
 
+  function addImageToCanvas(imageSrc: string) {
+    const img_element = new Image();
+    img_element.onload = () => {
+      if (ctx) {
+        // Assuming your ImageInfo constructor takes parameters for x, y, width, height, and the image element
+        const imageInfo = new ImageInfo(
+          10, // Initial x position
+          10, // Initial y position
+          img_element.width,
+          img_element.height,
+          img_element
+        );
+        medias.push(imageInfo); // Add to your media array
+        drawMedia(); // Redraw the canvas to show the new image
+      }
+    };
+    img_element.src = imageSrc; // Set the source of the image to trigger the load
+  }
+
   function handleFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files) return;
     const file = input.files[0];
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
-      const img_element = new Image();
-      img_element.onload = () => {
-        if (ctx) {
-          const imageInfo = new ImageInfo(
-            10,
-            10,
-            img_element.width,
-            img_element.height,
-            img_element
-          );
-          medias.push(imageInfo);
-          drawMedia();
-        }
-      };
-      img_element.src = e.target?.result as string;
+      addImageToCanvas(e.target?.result as string);
     };
     reader.readAsDataURL(file);
 
