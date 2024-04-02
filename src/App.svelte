@@ -100,16 +100,16 @@
 
   function handleDragOver(event: DragEvent) {
     event.preventDefault(); // Necessary to allow dropping
-    canvas.style.borderColor = "blue"; // Visual indicator, e.g., change border color
+    canvas.style.backgroundColor = "rgba(173, 216, 230, 0.5)"; // Light blue color with some transparency
   }
 
   function handleDragEnter(event: DragEvent) {
     event.preventDefault();
-    // Optional: Enhance visual cue
   }
 
   function handleDragLeave(event: DragEvent) {
-    canvas.style.borderColor = ""; // Reset visual cue
+    event.preventDefault();
+    canvas.style.backgroundColor = "";
   }
 
   function handleDrop(event: DragEvent) {
@@ -118,7 +118,7 @@
     if (file) {
       readFileAndDisplay(file);
     }
-    canvas.style.borderColor = ""; // Reset visual cue after drop
+    canvas.style.backgroundColor = "";
   }
 
   function readFileAndDisplay(file: File) {
