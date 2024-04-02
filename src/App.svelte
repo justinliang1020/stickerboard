@@ -19,7 +19,6 @@
     window.addEventListener("keydown", handleKeyDown);
   });
 
-  // Cleanup to prevent memory leaks
   onDestroy(() => {
     window.removeEventListener("resize", resizeCanvas);
     window.removeEventListener("keydown", handleKeyDown);
@@ -78,7 +77,6 @@
   function drawMedia() {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // medias.sort((a, b) => b.z - a.z); // Sort medias array based on z-index from highest to lowest
     medias.forEach((media) => {
       if (!ctx) return;
       media.draw(ctx);
@@ -135,7 +133,7 @@
           return;
         }
       }
-    };
+    }
 
     if (!interactionFound) {
       selectedMedia = null;
