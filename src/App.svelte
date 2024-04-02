@@ -17,11 +17,21 @@
     resizeCanvas(); // Set initial size
     window.addEventListener("resize", resizeCanvas); // Adjust on window resize
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("paste", handlePaste); // Listen for paste events
+    canvas.addEventListener("dragover", handleDragOver); // Allows us to drop
+    canvas.addEventListener("dragenter", handleDragEnter); // Optional: Visual cue
+    canvas.addEventListener("dragleave", handleDragLeave); // Optional: Reset visual cue
+    canvas.addEventListener("drop", handleDrop); // Handle file drop
   });
 
   onDestroy(() => {
     window.removeEventListener("resize", resizeCanvas);
     window.removeEventListener("keydown", handleKeyDown);
+    window.removeEventListener("paste", handlePaste);
+    canvas.removeEventListener("dragover", handleDragOver);
+    canvas.removeEventListener("dragenter", handleDragEnter);
+    canvas.removeEventListener("dragleave", handleDragLeave);
+    canvas.removeEventListener("drop", handleDrop);
   });
 
   function resizeCanvas() {
@@ -66,17 +76,58 @@
     img_element.src = imageSrc; // Set the source of the image to trigger the load
   }
 
-  function handleFileChange(event: Event) {
+  function handleButtonFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files) return;
     const file = input.files[0];
+    readFileAndDisplay(file);
+
+    input.value = "";
+  }
+
+  function handlePaste(event: ClipboardEvent) {
+    const items = event.clipboardData?.items;
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") !== -1) {
+          const file = items[i].getAsFile();
+          if (!file) return;
+          readFileAndDisplay(file);
+        }
+      }
+    }
+  }
+
+  function handleDragOver(event: DragEvent) {
+    event.preventDefault(); // Necessary to allow dropping
+    canvas.style.borderColor = "blue"; // Visual indicator, e.g., change border color
+  }
+
+  function handleDragEnter(event: DragEvent) {
+    event.preventDefault();
+    // Optional: Enhance visual cue
+  }
+
+  function handleDragLeave(event: DragEvent) {
+    canvas.style.borderColor = ""; // Reset visual cue
+  }
+
+  function handleDrop(event: DragEvent) {
+    event.preventDefault();
+    const file = event.dataTransfer?.files[0];
+    if (file) {
+      readFileAndDisplay(file);
+    }
+    canvas.style.borderColor = ""; // Reset visual cue after drop
+  }
+
+  function readFileAndDisplay(file: File) {
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
       addImageToCanvas(e.target?.result as string);
     };
     reader.readAsDataURL(file);
-
-    input.value = "";
   }
 
   function drawMedia() {
@@ -279,7 +330,7 @@
       <input
         type="file"
         accept="image/*"
-        on:change={handleFileChange}
+        on:change={handleButtonFileChange}
         id="fileInput"
         hidden
       />
