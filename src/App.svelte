@@ -138,7 +138,6 @@
           img_element
         );
         medias = [...medias, imageInfo];
-        // drawMedia(); // Needed since onload is async and isn't caught by svelte reactivity
       }
     };
     img_element.src = imageSrc; // Set the source of the image to trigger the load
