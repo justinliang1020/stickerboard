@@ -22,6 +22,7 @@
   }
   $: medias, tick();
   $: selectedMedia, tick();
+  $: canvas, tick();
 
   onMount(() => {
     ctx = canvas.getContext("2d");
