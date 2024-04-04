@@ -390,7 +390,7 @@
     >
     </canvas>
     <div class="floating-actions" bind:this={actionsToolbar} style="display: none;">
-      <button on:click={actionOne}>Action 1</button>
+      <button on:click={handleSendToBack}>Send To Back</button>
       <button on:click={actionTwo}>Action 2</button>
     </div>
     <div class="toolbar">
@@ -403,8 +403,6 @@
         id="fileInput"
         hidden
       />
-      <button on:click={handleSendToBack}>Send To Back</button>
-      <button>Button 3</button>
     </div>
   </div>
 </body>
