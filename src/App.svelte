@@ -223,16 +223,14 @@
         }
       });
 
-      if (!interactionFound) {
-        // Check for image click
-        if (cursorIsOverMedia(mousePos, medias[i]) && !isResizing) {
-          interactionFound = true;
-          isDragging = true;
-          selectedMedia = medias[i];
-          offsetX = mousePos.x - medias[i].x;
-          offsetY = mousePos.y - medias[i].y;
-          return;
-        }
+      // Check for image click
+      if (cursorIsOverMedia(mousePos, medias[i]) && !isResizing) {
+        interactionFound = true;
+        isDragging = true;
+        selectedMedia = medias[i];
+        offsetX = mousePos.x - medias[i].x;
+        offsetY = mousePos.y - medias[i].y;
+        return;
       }
     }
 
