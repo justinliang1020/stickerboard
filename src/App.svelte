@@ -13,9 +13,8 @@
   let isResizing: boolean = false;
   let activeHandle: HandleInfo | null = null;
 
-  // $: drawMedia();
-  $: medias, drawMedia();
-  $: selectedMedia, drawMedia();
+  $: medias, drawAll();
+  $: selectedMedia, drawAll();
 
   onMount(() => {
     ctx = canvas.getContext("2d");
@@ -178,7 +177,7 @@
     }, "image/png");
   }
 
-  function drawMedia() {
+  function drawAll() {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     medias.forEach((media) => {
