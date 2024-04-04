@@ -12,9 +12,16 @@
   let offsetX: number, offsetY: number;
   let isResizing: boolean = false;
   let activeHandle: HandleInfo | null = null;
+  let actionsToolbar: HTMLDivElement;
 
-  $: medias, drawAll();
-  $: selectedMedia, drawAll();
+  function tick() {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawMedias();
+    updateActionsToolbar();
+  }
+  $: medias, tick();
+  $: selectedMedia, tick();
 
   onMount(() => {
     ctx = canvas.getContext("2d");
@@ -177,9 +184,8 @@
     }, "image/png");
   }
 
-  function drawAll() {
+  function drawMedias() {
     if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     medias.forEach((media) => {
       if (!ctx) return;
       media.draw(ctx);
@@ -346,6 +352,29 @@
       medias = [item, ...medias.slice(0, index), ...medias.slice(index + 1)];
     }
   }
+
+  function updateActionsToolbar() {
+    if (selectedMedia) {
+      const { x, y } = selectedMedia; // Assume these are the top-left coordinates of the image
+      const actionsDivHeight = actionsToolbar.offsetHeight; // Get the height of the actions div
+      // Position the div above the image, adjusting by its height so it doesn't overlap
+      actionsToolbar.style.left = `${x}px`;
+      actionsToolbar.style.top = `${y - actionsDivHeight - 10}px`; // 10px gap above the image
+      actionsToolbar.style.display = "block"; // Make it visible
+    } else {
+      actionsToolbar.style.display = "none"; // Hide it if no image is selected
+    }
+  }
+
+  function actionOne() {
+    console.log("Action 1 executed");
+    // Implement your action logic here
+  }
+
+  function actionTwo() {
+    console.log("Action 2 executed");
+    // Implement your action logic here
+  }
 </script>
 
 <body>
@@ -360,6 +389,10 @@
       on:blur={stopDrag}
     >
     </canvas>
+    <div class="floating-actions" bind:this={actionsToolbar} style="display: none;">
+      <button on:click={actionOne}>Action 1</button>
+      <button on:click={actionTwo}>Action 2</button>
+    </div>
     <div class="toolbar">
       <button on:click={handleUploadClick}>Upload</button>
       <!-- Trigger hidden file input -->
@@ -418,5 +451,16 @@
 
   .toolbar button {
     cursor: pointer;
+  }
+
+  .floating-actions {
+    position: absolute;
+    z-index: 10; /* Ensure it appears above the canvas */
+    background-color: #f9f9f9; /* Example background */
+    border: 1px solid #ccc; /* Example border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 5px; /* Some padding */
+    display: flex; /* For button alignment */
+    gap: 5px; /* Gap between buttons */
   }
 </style>
