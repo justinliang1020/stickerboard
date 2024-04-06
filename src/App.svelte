@@ -14,6 +14,7 @@
   let isResizing: boolean = false;
   let activeHandle: HandleInfo | null = null;
   let actionsToolbar: HTMLDivElement;
+  let segmentMode = false;
 
   function tick() {
     if (!ctx) return;
@@ -368,14 +369,13 @@
     }
   }
 
-  function actionOne() {
-    console.log("Action 1 executed");
-    // Implement your action logic here
+  function enableSegmentMode() {
+    segmentMode = true;
   }
 
-  function actionTwo() {
-    console.log("Action 2 executed");
-    // Implement your action logic here
+  function disableSegmentMode() {
+    segmentMode = false;
+    selectedMedia = null;
   }
 </script>
 
@@ -391,14 +391,26 @@
       on:blur={stopDrag}
     >
     </canvas>
+    {#if !segmentMode}
     <div
       class="floating-actions"
       bind:this={actionsToolbar}
       style="display: none;"
     >
       <button on:click={handleSendToBack}>Send To Back</button>
-      <button on:click={actionTwo}>Action 2</button>
+      <button on:click={enableSegmentMode}>Enable Segmentation</button>
     </div>
+    {:else}
+    <div
+      class="floating-actions"
+      bind:this={actionsToolbar}
+      style="display: none;"
+    >
+      <button on:click={disableSegmentMode}>exit segment mode</button>
+      <button>clear segmentations</button>
+      <button>create sticker</button>
+    </div>
+    {/if}
     <div class="toolbar">
       <button on:click={handleUploadClick}>Upload</button>
       <!-- Trigger hidden file input -->
