@@ -454,6 +454,7 @@
     {/if}
     <div class="toolbar">
       <button on:click={handleUploadClick}>Upload</button>
+      <a href="https://twitter.com/justinliang1020">made by justin</a>
       <!-- Trigger hidden file input -->
       <input
         type="file"
