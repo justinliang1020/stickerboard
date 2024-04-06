@@ -439,6 +439,7 @@
       >
         <button on:click={handleSendToBack}>Send To Back</button>
         <button on:click={enableSegmentMode}>Enter Sticker Mode</button>
+        <button on:click={deleteSelectedMedia}>Delete Image</button>
       </div>
     {:else}
       <div
