@@ -3,6 +3,7 @@
   import { ImageInfo } from "./lib/models/ImageInfo";
   import { MediaInfo, type HandleInfo } from "./lib/models/MediaInfo";
   import girImage from "./assets/gir.jpeg";
+  import {} from "./lib/segment";
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
@@ -390,7 +391,11 @@
       on:blur={stopDrag}
     >
     </canvas>
-    <div class="floating-actions" bind:this={actionsToolbar} style="display: none;">
+    <div
+      class="floating-actions"
+      bind:this={actionsToolbar}
+      style="display: none;"
+    >
       <button on:click={handleSendToBack}>Send To Back</button>
       <button on:click={actionTwo}>Action 2</button>
     </div>
