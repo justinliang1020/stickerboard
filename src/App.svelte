@@ -3,7 +3,12 @@
   import { ImageInfo } from "./lib/models/ImageInfo";
   import { MediaInfo, type HandleInfo } from "./lib/models/MediaInfo";
   import girImage from "./assets/gir.jpeg";
-  import { handleSegmentClick, copyMaskedRegionToNewImage, resetScribbles } from "./lib/segment";
+  import {
+    handleSegmentClick,
+    copyMaskedRegionToNewImage,
+    resetScribbles,
+  } from "./lib/segment";
+  import { scale } from "svelte/transition";
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
@@ -138,20 +143,28 @@
 
   function addImageToCanvas(imageSrc: string, x: number = 10, y: number = 10) {
     const img_element = new Image();
+    img_element.src = imageSrc; // Set the source of the image to trigger the load
     img_element.onload = () => {
+      let width = img_element.width;
+      let height = img_element.height;
+      if (
+        img_element.width > canvas.width ||
+        img_element.height > canvas.height
+      ) {
+        const scale_factor = Math.max(
+          img_element.width * 1.3 / canvas.width,
+          img_element.height * 1.3 / canvas.height
+        );
+        console.log(scale_factor);
+        width = width / scale_factor;
+        height = height / scale_factor;
+      }
       if (ctx) {
         // Assuming your ImageInfo constructor takes parameters for x, y, width, height, and the image element
-        const imageInfo = new ImageInfo(
-          x,
-          y,
-          img_element.width,
-          img_element.height,
-          img_element
-        );
+        const imageInfo = new ImageInfo(x, y, width, height, img_element);
         medias = [...medias, imageInfo];
       }
     };
-    img_element.src = imageSrc; // Set the source of the image to trigger the load
   }
 
   function readFileAndDisplay(file: File) {
@@ -388,11 +401,10 @@
 
   function createSticker(event: MouseEvent) {
     if (!(selectedMedia instanceof ImageInfo)) return;
-    let newImageURL = copyMaskedRegionToNewImage(selectedMedia)
+    let newImageURL = copyMaskedRegionToNewImage(selectedMedia);
     if (!newImageURL) return;
     addImageToCanvas(newImageURL, 10, 10);
   }
-
 
   function resetSegmentation(event: MouseEvent) {
     resetScribbles(canvasSegmentation);
