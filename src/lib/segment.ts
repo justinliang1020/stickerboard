@@ -21,6 +21,8 @@ import { ImageInfo } from "./models/ImageInfo";
 
 let interactiveSegmenter: InteractiveSegmenter;
 
+let mask: MPMask | undefined;
+
 // Before we can use InteractiveSegmenter class we must wait for it to finish
 // loading. Machine Learning models can be large and take a moment to
 // get everything needed to run.
@@ -86,7 +88,8 @@ export async function handleSegmentClick(
       },
     },
     (result) => {
-      drawSegmentation(result.categoryMask, canvas, ctx);
+      mask = result.categoryMask;
+      drawSegmentation(canvas, ctx);
       drawClickPoint(ctx, event);
     }
   );
@@ -99,7 +102,6 @@ function drawClickPoint(ctx: CanvasRenderingContext2D, event: MouseEvent) {
 }
 
 function drawSegmentation(
-  mask: MPMask | undefined,
   canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D
 ) {
