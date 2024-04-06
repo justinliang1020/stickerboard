@@ -3,7 +3,7 @@
   import { ImageInfo } from "./lib/models/ImageInfo";
   import { MediaInfo, type HandleInfo } from "./lib/models/MediaInfo";
   import girImage from "./assets/gir.jpeg";
-  import { handleSegmentClick } from "./lib/segment";
+  import { handleSegmentClick, copyMaskedRegionToNewImage } from "./lib/segment";
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
@@ -383,6 +383,13 @@
     if (!(selectedMedia instanceof ImageInfo)) return;
     handleSegmentClick(event, selectedMedia);
   }
+
+  function createSticker(event: MouseEvent) {
+    if (!(selectedMedia instanceof ImageInfo)) return;
+    let newImageURL = copyMaskedRegionToNewImage(selectedMedia)
+    if (!newImageURL) return;
+    addImageToCanvas(newImageURL, 10, 10);
+  }
 </script>
 
 <body>
@@ -420,8 +427,7 @@
         style="display: none;"
       >
         <button on:click={disableSegmentMode}>exit segment mode</button>
-        <button>clear segmentations</button>
-        <button>create sticker</button>
+        <button on:click={createSticker}>create sticker</button>
       </div>
     {/if}
     <div class="toolbar">

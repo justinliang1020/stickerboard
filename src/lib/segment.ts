@@ -48,7 +48,7 @@ console.log("model loaded");
 export async function handleSegmentClick(
   //@ts-ignore
   event,
-  image_info: ImageInfo
+  imageInfo: ImageInfo
 ) {
   if (!interactiveSegmenter) {
     alert("InteractiveSegmenter still loading. Try again shortly.");
@@ -64,19 +64,19 @@ export async function handleSegmentClick(
 
   // scale the image and use that for segmentation
   const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = image_info.width; // or scaled dimensions if you're scaling
-  tempCanvas.height = image_info.height;
+  tempCanvas.width = imageInfo.width; // or scaled dimensions if you're scaling
+  tempCanvas.height = imageInfo.height;
   const tempCtx = tempCanvas.getContext("2d");
   if (!tempCtx) {
     alert("oops no temp canvas ctx");
     return;
   }
   tempCtx.drawImage(
-    image_info.img_element,
+    imageInfo.img_element,
     0,
     0,
-    image_info.width,
-    image_info.height
+    imageInfo.width,
+    imageInfo.height
   );
 
   interactiveSegmenter.segment(
@@ -129,4 +129,53 @@ function drawSegmentation(
       ctx.fillRect(x, y, 1, 1);
     }
   });
+}
+
+export function copyMaskedRegionToNewImage(imageInfo: ImageInfo) {
+  // Apply the segmentation mask
+  if (mask === undefined) {
+    console.error("No mask available for copying.");
+    return;
+  }
+
+  // given a mask and an image, create a new imageInfo with the sticker
+  const newCanvas = document.createElement("canvas");
+  newCanvas.width = imageInfo.width;
+  newCanvas.height = imageInfo.height;
+  const newCtx = newCanvas.getContext("2d");
+
+  if (!newCtx) {
+    alert("oops no newtx in copyMaskedRegion");
+    return;
+  }
+  // Draw the original image onto the new canvas
+  newCtx.drawImage(
+    imageInfo.img_element,
+    0,
+    0,
+    imageInfo.width,
+    imageInfo.height
+  );
+
+  const maskData = mask.getAsFloat32Array();
+  const imgData = newCtx.getImageData(0, 0, mask.width, mask.height);
+
+  // Iterate over the mask data and make non-segmented pixels transparent
+  for (let i = 0; i < maskData.length; i++) {
+    // If the mask value indicates non-segmented area, make the pixel transparent
+    if (Math.round(maskData[i] * 255.0) !== 0) {
+      imgData.data[i * 4 + 3] = 0; // Set alpha to 0 (transparent)
+    }
+  }
+
+  // Put the modified image data back onto the canvas
+  newCtx.putImageData(imgData, 0, 0);
+
+  // Optionally, add the new canvas to the DOM or use it further in your application
+  // document.body.appendChild(newCanvas); // For example, add it to the document body
+
+  // Convert the canvas content to a data URL
+  const dataURL = newCanvas.toDataURL();
+
+  return dataURL
 }
