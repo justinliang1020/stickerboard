@@ -438,7 +438,7 @@
         style="display: none;"
       >
         <button on:click={handleSendToBack}>Send To Back</button>
-        <button on:click={enableSegmentMode}>Enable Segmentation</button>
+        <button on:click={enableSegmentMode}>Enter Sticker Mode</button>
       </div>
     {:else}
       <div
@@ -446,9 +446,9 @@
         bind:this={actionsToolbar}
         style="display: none;"
       >
-        <button on:click={disableSegmentMode}>exit segment mode</button>
-        <button on:click={resetSegmentation}>reset segmentation</button>
-        <button on:click={createSticker}>create sticker</button>
+        <button on:click={disableSegmentMode}>Exit Sticker Mode</button>
+        <button on:click={resetSegmentation}>Reset Sticker</button>
+        <button on:click={createSticker}>Create Sticker</button>
       </div>
     {/if}
     <div class="toolbar">
