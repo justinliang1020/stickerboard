@@ -14,7 +14,7 @@
 import {
   InteractiveSegmenter,
   FilesetResolver,
-  MPMask
+  MPMask,
 } from "@mediapipe/tasks-vision";
 
 let interactiveSegmenter: InteractiveSegmenter;
@@ -31,12 +31,81 @@ const createSegmenter = async () => {
     {
       baseOptions: {
         modelAssetPath: `https://storage.googleapis.com/mediapipe-models/interactive_segmenter/magic_touch/float32/1/magic_touch.tflite`,
-        delegate: "GPU"
+        delegate: "GPU",
       },
       outputCategoryMask: true,
-      outputConfidenceMasks: false
+      outputConfidenceMasks: false,
     }
   );
 };
 createSegmenter();
-console.log("model loaded")
+console.log("model loaded");
+
+export async function handleSegmentClick(
+  //@ts-ignore
+  event,
+  image_element: HTMLImageElement
+) {
+  if (!interactiveSegmenter) {
+    alert("InteractiveSegmenter still loading. Try again shortly.");
+    return;
+  }
+
+  const canvas = event.target as HTMLCanvasElement;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    alert("oops no canvas context on segment");
+    return;
+  }
+
+  interactiveSegmenter.segment(
+    image_element,
+    {
+      keypoint: {
+        x: event.offsetX / event.target.width,
+        y: event.offsetY / event.target.height,
+      },
+    },
+    (result) => {
+      drawSegmentation(result.categoryMask, canvas, ctx);
+      drawClickPoint(ctx, event);
+    }
+  );
+}
+
+function drawClickPoint(ctx: CanvasRenderingContext2D, event: MouseEvent) {
+  console.log(ctx);
+  console.log(event.offsetY);
+  console.log(event.offsetX);
+}
+
+function drawSegmentation(
+  mask: MPMask | undefined,
+  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D
+) {
+  if (mask === undefined) {
+    alert("oops no MPMask returned");
+    return;
+  }
+  const width = mask.width;
+  const height = mask.height;
+  const maskData = mask.getAsFloat32Array();
+  canvas.width = width;
+  canvas.height = height;
+
+  console.log("Start visualization");
+
+  ctx.fillStyle = "#00000000";
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = "rgba(18, 181, 203, 0.7)";
+
+  //@ts-ignore
+  maskData.map((category, index) => {
+    if (Math.round(category * 255.0) === 0) {
+      const x = (index + 1) % width;
+      const y = (index + 1 - x) / width;
+      ctx.fillRect(x, y, 1, 1);
+    }
+  });
+}

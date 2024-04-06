@@ -3,7 +3,7 @@
   import { ImageInfo } from "./lib/models/ImageInfo";
   import { MediaInfo, type HandleInfo } from "./lib/models/MediaInfo";
   import girImage from "./assets/gir.jpeg";
-  import {} from "./lib/segment";
+  import { handleSegmentClick } from "./lib/segment";
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
@@ -214,6 +214,7 @@
   function onCanvasMouseDown(event: MouseEvent) {
     const mousePos = getMousePos(canvas, event);
     let interactionFound = false; // Flag to check if an image or handle is interacted with
+    segmentMode = false;
 
     for (let i = medias.length - 1; i >= 0; i--) {
       // Check for handle click first
@@ -377,6 +378,11 @@
     segmentMode = false;
     selectedMedia = null;
   }
+
+  function handleSegmentClickWrapper(event: MouseEvent) {
+    if (!(selectedMedia instanceof ImageInfo)) return;
+    handleSegmentClick(event, selectedMedia.img_element);
+  }
 </script>
 
 <body>
@@ -391,25 +397,32 @@
       on:blur={stopDrag}
     >
     </canvas>
+    {#if selectedMedia && segmentMode}
+      <canvas
+        class="canvas-segmentation"
+        style="position: absolute; left: {selectedMedia.x}px; top: {selectedMedia.y}px; width: {selectedMedia.width}px; height: {selectedMedia.height}px; background-color: rgba(0, 50, 0, 0.15);"
+        on:click={handleSegmentClickWrapper}
+      ></canvas>
+    {/if}
     {#if !segmentMode}
-    <div
-      class="floating-actions"
-      bind:this={actionsToolbar}
-      style="display: none;"
-    >
-      <button on:click={handleSendToBack}>Send To Back</button>
-      <button on:click={enableSegmentMode}>Enable Segmentation</button>
-    </div>
+      <div
+        class="floating-actions"
+        bind:this={actionsToolbar}
+        style="display: none;"
+      >
+        <button on:click={handleSendToBack}>Send To Back</button>
+        <button on:click={enableSegmentMode}>Enable Segmentation</button>
+      </div>
     {:else}
-    <div
-      class="floating-actions"
-      bind:this={actionsToolbar}
-      style="display: none;"
-    >
-      <button on:click={disableSegmentMode}>exit segment mode</button>
-      <button>clear segmentations</button>
-      <button>create sticker</button>
-    </div>
+      <div
+        class="floating-actions"
+        bind:this={actionsToolbar}
+        style="display: none;"
+      >
+        <button on:click={disableSegmentMode}>exit segment mode</button>
+        <button>clear segmentations</button>
+        <button>create sticker</button>
+      </div>
     {/if}
     <div class="toolbar">
       <button on:click={handleUploadClick}>Upload</button>
