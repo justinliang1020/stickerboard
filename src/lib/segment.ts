@@ -17,6 +17,8 @@ import {
   MPMask,
 } from "@mediapipe/tasks-vision";
 
+import { ImageInfo } from "./models/ImageInfo";
+
 let interactiveSegmenter: InteractiveSegmenter;
 
 // Before we can use InteractiveSegmenter class we must wait for it to finish
@@ -44,7 +46,7 @@ console.log("model loaded");
 export async function handleSegmentClick(
   //@ts-ignore
   event,
-  image_element: HTMLImageElement
+  image_info: ImageInfo
 ) {
   if (!interactiveSegmenter) {
     alert("InteractiveSegmenter still loading. Try again shortly.");
@@ -58,8 +60,25 @@ export async function handleSegmentClick(
     return;
   }
 
+  // scale the image and use that for segmentation
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = image_info.width; // or scaled dimensions if you're scaling
+  tempCanvas.height = image_info.height;
+  const tempCtx = tempCanvas.getContext("2d");
+  if (!tempCtx) {
+    alert("oops no temp canvas ctx");
+    return;
+  }
+  tempCtx.drawImage(
+    image_info.img_element,
+    0,
+    0,
+    image_info.width,
+    image_info.height
+  );
+
   interactiveSegmenter.segment(
-    image_element,
+    tempCanvas,
     {
       keypoint: {
         x: event.offsetX / event.target.width,

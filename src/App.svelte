@@ -381,7 +381,7 @@
 
   function handleSegmentClickWrapper(event: MouseEvent) {
     if (!(selectedMedia instanceof ImageInfo)) return;
-    handleSegmentClick(event, selectedMedia.img_element);
+    handleSegmentClick(event, selectedMedia);
   }
 </script>
 
