@@ -20,8 +20,12 @@ import {
 import { ImageInfo } from "./models/ImageInfo";
 
 let interactiveSegmenter: InteractiveSegmenter;
-
 let mask: MPMask | undefined;
+interface Scribble {
+  x: number;
+  y: number;
+}
+let scribbles: Scribble[] = [];
 
 // Before we can use InteractiveSegmenter class we must wait for it to finish
 // loading. Machine Learning models can be large and take a moment to
@@ -43,7 +47,7 @@ const createSegmenter = async () => {
   );
 };
 createSegmenter();
-console.log("model loaded");
+console.log("model Coaded");
 
 export async function handleSegmentClick(
   //@ts-ignore
@@ -79,13 +83,15 @@ export async function handleSegmentClick(
     imageInfo.height
   );
 
+  scribbles.push({
+    x: event.offsetX / event.target.width,
+    y: event.offsetY / event.target.height,
+  });
+
   interactiveSegmenter.segment(
     tempCanvas,
     {
-      keypoint: {
-        x: event.offsetX / event.target.width,
-        y: event.offsetY / event.target.height,
-      },
+      scribble: scribbles,
     },
     (result) => {
       mask = result.categoryMask;
@@ -95,10 +101,22 @@ export async function handleSegmentClick(
   );
 }
 
+export function resetScribbles(canvas: HTMLCanvasElement | undefined) {
+  if (!canvas) return;
+  // reset canvas and scribbles
+  scribbles = [];
+  let ctx = canvas.getContext("2d");
+  ctx?.clearRect(0, 0, canvas.width, canvas.height);
+  console.log("reset scribbles")
+}
+
 function drawClickPoint(ctx: CanvasRenderingContext2D, event: MouseEvent) {
   console.log(ctx);
   console.log(event.offsetY);
   console.log(event.offsetX);
+  ctx.fillStyle = "rgba(255, 181, 203, 0.7)";
+  const squareSize = 5;
+  ctx.fillRect(event.offsetX - squareSize, event.offsetY - squareSize, squareSize * 2, squareSize * 2)
 }
 
 function drawSegmentation(
@@ -177,5 +195,5 @@ export function copyMaskedRegionToNewImage(imageInfo: ImageInfo) {
   // Convert the canvas content to a data URL
   const dataURL = newCanvas.toDataURL();
 
-  return dataURL
+  return dataURL;
 }

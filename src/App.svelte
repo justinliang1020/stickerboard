@@ -3,7 +3,7 @@
   import { ImageInfo } from "./lib/models/ImageInfo";
   import { MediaInfo, type HandleInfo } from "./lib/models/MediaInfo";
   import girImage from "./assets/gir.jpeg";
-  import { handleSegmentClick, copyMaskedRegionToNewImage } from "./lib/segment";
+  import { handleSegmentClick, copyMaskedRegionToNewImage, resetScribbles } from "./lib/segment";
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
@@ -15,6 +15,7 @@
   let activeHandle: HandleInfo | null = null;
   let actionsToolbar: HTMLDivElement;
   let segmentMode = false;
+  let canvasSegmentation: HTMLCanvasElement | undefined;
 
   function tick() {
     if (!ctx) return;
@@ -25,6 +26,7 @@
   $: medias, tick();
   $: selectedMedia, tick();
   $: canvas, tick();
+  $: segmentMode, resetScribbles(canvasSegmentation);
 
   onMount(() => {
     ctx = canvas.getContext("2d");
@@ -390,6 +392,11 @@
     if (!newImageURL) return;
     addImageToCanvas(newImageURL, 10, 10);
   }
+
+
+  function resetSegmentation(event: MouseEvent) {
+    resetScribbles(canvasSegmentation);
+  }
 </script>
 
 <body>
@@ -408,6 +415,7 @@
       <canvas
         class="canvas-segmentation"
         style="position: absolute; left: {selectedMedia.x}px; top: {selectedMedia.y}px; width: {selectedMedia.width}px; height: {selectedMedia.height}px; background-color: rgba(0, 50, 0, 0.15);"
+        bind:this={canvasSegmentation}
         on:click={handleSegmentClickWrapper}
       ></canvas>
     {/if}
@@ -427,6 +435,7 @@
         style="display: none;"
       >
         <button on:click={disableSegmentMode}>exit segment mode</button>
+        <button on:click={resetSegmentation}>reset segmentation</button>
         <button on:click={createSticker}>create sticker</button>
       </div>
     {/if}
