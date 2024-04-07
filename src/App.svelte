@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from "svelte";
   import { ImageInfo } from "./lib/models/ImageInfo";
   import { MediaInfo, type HandleInfo } from "./lib/models/MediaInfo";
-  import girImage from "./assets/gir.jpeg";
+  import frierenImage from "./assets/frieren-blogroll.jpeg";
   import {
     handleSegmentClick,
     copyMaskedRegionToNewImage,
@@ -45,7 +45,7 @@
     canvas.addEventListener("drop", handleDrop); // Handle file drop
 
     // add default image
-    addImageToCanvas(girImage, 100, 100);
+    addImageToCanvas(frierenImage, 100, 100);
 
     function resizeCanvas() {
       if (canvas) {
