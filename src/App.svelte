@@ -141,6 +141,40 @@
     }
   }
 
+  async function downloadSelectedMedia() {
+    // TODO: refactor to support gif
+    if (!selectedMedia || !ctx || !(selectedMedia instanceof ImageInfo)) return;
+
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCanvas.width = selectedMedia.width;
+    tempCanvas.height = selectedMedia.height;
+
+    if (!tempCtx) return;
+
+    // Draw the image at (0, 0) on the temporary canvas using the adjusted draw method
+    selectedMedia.draw(tempCtx, 0, 0); // The x, y here are explicitly set to 0, 0
+
+    // Convert the temporary canvas to a Blob, then create a URL for downloading
+    tempCanvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+
+      // Create an anchor (<a>) element to facilitate downloading
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.download = "downloaded-image.png"; // Set the default filename for the download
+
+      // Append the anchor to the document temporarily and trigger the download
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+
+      // Clean up by revoking the blob URL and removing the anchor from the document
+      URL.revokeObjectURL(url);
+      document.body.removeChild(downloadLink);
+    }, "image/png");
+  }
+
   function addImageToCanvas(imageSrc: string, x: number = 10, y: number = 10) {
     const img_element = new Image();
     img_element.src = imageSrc; // Set the source of the image to trigger the load
@@ -152,8 +186,8 @@
         img_element.height > canvas.height
       ) {
         const scale_factor = Math.max(
-          img_element.width * 1.3 / canvas.width,
-          img_element.height * 1.3 / canvas.height
+          (img_element.width * 1.3) / canvas.width,
+          (img_element.height * 1.3) / canvas.height
         );
         console.log(scale_factor);
         width = width / scale_factor;
@@ -440,6 +474,7 @@
         <button on:click={handleSendToBack}>Send To Back</button>
         <button on:click={enableSegmentMode}>Enter Sticker Mode</button>
         <button on:click={deleteSelectedMedia}>Delete Image</button>
+        <button on:click={downloadSelectedMedia}>Download</button>
       </div>
     {:else}
       <div
