@@ -18,6 +18,7 @@ import {
 } from "@mediapipe/tasks-vision";
 
 import { ImageInfo } from "./models/ImageInfo";
+import { createTempCanvasForImage } from "./utils";
 
 let interactiveSegmenter: InteractiveSegmenter;
 let mask: MPMask | undefined;
@@ -67,21 +68,7 @@ export async function handleSegmentClick(
   }
 
   // scale the image and use that for segmentation
-  const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = imageInfo.width; // or scaled dimensions if you're scaling
-  tempCanvas.height = imageInfo.height;
-  const tempCtx = tempCanvas.getContext("2d");
-  if (!tempCtx) {
-    alert("oops no temp canvas ctx");
-    return;
-  }
-  tempCtx.drawImage(
-    imageInfo.img_element,
-    0,
-    0,
-    imageInfo.width,
-    imageInfo.height
-  );
+  const tempCanvas = createTempCanvasForImage(imageInfo)
 
   scribbles.push({
     x: event.offsetX / event.target.width,

@@ -9,6 +9,7 @@
     resetScribbles,
   } from "./lib/segment";
   import { scale } from "svelte/transition";
+  import { createTempCanvasForImage } from "./lib/utils";
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D | null;
@@ -145,15 +146,7 @@
     // TODO: refactor to support gif
     if (!selectedMedia || !ctx || !(selectedMedia instanceof ImageInfo)) return;
 
-    const tempCanvas = document.createElement("canvas");
-    const tempCtx = tempCanvas.getContext("2d");
-    tempCanvas.width = selectedMedia.width;
-    tempCanvas.height = selectedMedia.height;
-
-    if (!tempCtx) return;
-
-    // Draw the image at (0, 0) on the temporary canvas using the adjusted draw method
-    selectedMedia.draw(tempCtx, 0, 0); // The x, y here are explicitly set to 0, 0
+    const tempCanvas = createTempCanvasForImage(selectedMedia);
 
     // Convert the temporary canvas to a Blob, then create a URL for downloading
     tempCanvas.toBlob((blob) => {
@@ -214,17 +207,8 @@
     if (!selectedMedia || !ctx || !(selectedMedia instanceof ImageInfo)) return;
 
     // Create a temporary canvas with dimensions matching the selected image
-    const tempCanvas = document.createElement("canvas");
-    const tempCtx = tempCanvas.getContext("2d");
-    tempCanvas.width = selectedMedia.width;
-    tempCanvas.height = selectedMedia.height;
+    const tempCanvas =  createTempCanvasForImage(selectedMedia);   
 
-    if (!tempCtx) return;
-
-    // Draw the image at (0, 0) on the temporary canvas using the adjusted draw method
-    selectedMedia.draw(tempCtx, 0, 0); // The x, y here are explicitly set to 0, 0
-
-    // Convert the temporary canvas to a Blob for the clipboard
     tempCanvas.toBlob((blob) => {
       if (!blob) return;
       navigator.clipboard
