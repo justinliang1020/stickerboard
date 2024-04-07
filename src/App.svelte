@@ -168,6 +168,27 @@
     }, "image/png");
   }
 
+  async function downloadCanvas() {
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+
+      // Create an anchor (<a>) element to facilitate downloading
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.download = "downloaded-image.png"; // Set the default filename for the download
+
+      // Append the anchor to the document temporarily and trigger the download
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+
+      // Clean up by revoking the blob URL and removing the anchor from the document
+      URL.revokeObjectURL(url);
+      document.body.removeChild(downloadLink);
+    }, "image/png");
+
+  }
+
   function addImageToCanvas(imageSrc: string, x: number = 10, y: number = 10) {
     const img_element = new Image();
     img_element.src = imageSrc; // Set the source of the image to trigger the load
@@ -473,6 +494,7 @@
     {/if}
     <div class="toolbar">
       <button on:click={handleUploadClick}>Upload</button>
+      <button on:click={downloadCanvas}>Download Canvas</button>
       <a href="https://twitter.com/justinliang1020">made by justin</a>
       <!-- Trigger hidden file input -->
       <input
