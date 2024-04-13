@@ -186,7 +186,6 @@
       URL.revokeObjectURL(url);
       document.body.removeChild(downloadLink);
     }, "image/png");
-
   }
 
   function addImageToCanvas(imageSrc: string, x: number = 10, y: number = 10) {
@@ -228,7 +227,7 @@
     if (!selectedMedia || !ctx || !(selectedMedia instanceof ImageInfo)) return;
 
     // Create a temporary canvas with dimensions matching the selected image
-    const tempCanvas =  createTempCanvasForImage(selectedMedia);   
+    const tempCanvas = createTempCanvasForImage(selectedMedia);
 
     tempCanvas.toBlob((blob) => {
       if (!blob) return;
@@ -472,6 +471,7 @@
         style="position: absolute; left: {selectedMedia.x}px; top: {selectedMedia.y}px; width: {selectedMedia.width}px; height: {selectedMedia.height}px; background-color: rgba(0, 50, 0, 0.15);"
         bind:this={canvasSegmentation}
         on:click={handleSegmentClickWrapper}
+        on:pointerdown={handleSegmentClickWrapper}
       ></canvas>
     {/if}
     {#if !segmentMode}
@@ -517,6 +517,7 @@
   body {
     margin: 0;
     overflow: hidden; /* Optional: Prevents scrollbars */
+    touch-action: none;
   }
 
   /* Ensures the canvas fills the entire screen */
