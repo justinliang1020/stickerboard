@@ -23,6 +23,8 @@
   let segmentMode = false;
   let canvasSegmentation: HTMLCanvasElement | undefined;
 
+
+
   function tick() {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -35,6 +37,10 @@
   $: segmentMode, resetScribbles(canvasSegmentation);
 
   onMount(() => {
+    if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(navigator.userAgent.toLowerCase())) {
+      alert('NOTE: sticker functionality is not yet ready for mobile use :(');
+    }
+
     ctx = canvas.getContext("2d");
     resizeCanvas(); // Set initial size
     window.addEventListener("resize", resizeCanvas); // Adjust on window resize
