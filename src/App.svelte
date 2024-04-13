@@ -459,6 +459,10 @@
       on:mousemove={onCanvasMouseMove}
       on:mouseup={stopDrag}
       on:mouseout={stopDrag}
+      on:pointerdown={onCanvasMouseDown}
+      on:pointermove={onCanvasMouseMove}
+      on:pointerup={stopDrag}
+      on:pointerout={stopDrag}
       on:blur={stopDrag}
     >
     </canvas>
