@@ -23,8 +23,6 @@
   let segmentMode = false;
   let canvasSegmentation: HTMLCanvasElement | undefined;
 
-
-
   function tick() {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -37,11 +35,17 @@
   $: segmentMode, resetScribbles(canvasSegmentation);
 
   onMount(() => {
-    if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(navigator.userAgent.toLowerCase())) {
-      alert('NOTE: sticker functionality is not yet ready for mobile use :(');
+    if (
+      /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/.test(
+        navigator.userAgent.toLowerCase()
+      )
+    ) {
+      alert("NOTE: sticker functionality is not yet ready for mobile use :(");
     }
 
     ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.imageSmoothingQuality = "high";
     resizeCanvas(); // Set initial size
     window.addEventListener("resize", resizeCanvas); // Adjust on window resize
     window.addEventListener("keydown", handleKeyDown);
@@ -55,10 +59,9 @@
     addImageToCanvas(frierenImage, 100, 100);
 
     function resizeCanvas() {
-      if (canvas) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
+      if (!canvas) return;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     }
 
     function handleKeyDown(event: KeyboardEvent) {
